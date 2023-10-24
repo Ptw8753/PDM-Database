@@ -1,5 +1,5 @@
 import json
-from DB import Database
+from Interface import Interface
 
 from sshtunnel import SSHTunnelForwarder
 
@@ -13,8 +13,8 @@ def get_login():
 
 def main():
     login = get_login()
-    database = Database(login[0], login[1])
-    print(database.query("Select * from \"genre\""))
+    interface = Interface(login[0], login[1])
+    print(interface.getSongByMinTimePlayed("200"))
 
 if __name__ == '__main__':
     main()
