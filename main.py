@@ -1,4 +1,3 @@
-import os
 import psycopg2
 import json
 
@@ -10,8 +9,8 @@ def get_login():
 
         print(credentials)
         return (credentials['username'], credentials['password'])
-
-def main():
+    
+def connect_to_db():
     username, password = get_login()
     with SSHTunnelForwarder(
             ('starbug.cs.rit.edu', 22),  # port 22 as standard SSH port
@@ -29,12 +28,19 @@ def main():
             'port': server.local_bind_port
         }
         conn = psycopg2.connect(**params)
+        
         cur = conn.cursor()  # if this works, you are connected
         print("DB connected")
-        cur.execute("Select * from \"genre\"")
-        records = cur.fetchall()
-        for record in records:
-            print(record)
+
+        # cur.execute("Select * from \"genre\"")
+        # records = cur.fetchall()
+        # for record in records:
+        #     print(record)
+
+def main():
+    connect_to_db()
+    cli()
+    
 
 if __name__ == '__main__':
     main()
