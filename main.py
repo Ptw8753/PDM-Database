@@ -1,8 +1,6 @@
 import json
 from Interface import Interface
 
-from sshtunnel import SSHTunnelForwarder
-
 
 def get_login():
     with open("login.json") as f:
