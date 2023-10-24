@@ -39,7 +39,6 @@ def connect_to_db():
 
 def main():
     connect_to_db()
-    cli()
     
 
 if __name__ == '__main__':
