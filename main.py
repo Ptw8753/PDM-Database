@@ -1,5 +1,5 @@
 from json import loads
-from interface import Interface
+from db_interface import Interface
 from cli import Cli
 
 
@@ -14,6 +14,7 @@ def main():
     username, password = get_login()
     interface = Interface(username, password)
     print(interface.getSongByMinTimePlayed("200"))
+    
     cli = Cli(interface)
 
 
