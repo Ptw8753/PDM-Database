@@ -17,25 +17,43 @@ class Interface:
 
 
     def getSongByMinTimePlayed(self, minTime: str):
-        songData = self.database.query('''
+        songData = self.database.query(f'''
         select title, releasedate, playcount, length, genre."name" from "song"
         join "genre" on song."genreid" = genre."genreid"
-        where ("length" > {length})
-        '''.format(length=minTime))
+        where ("length" > {minTime})
+        ''')
         songs = []
         for song in songData:
             songs.append(Song(title=song[0], releaseDate=song[1], playCount=song[2], length=song[3], genre=song[4]))
         return songs
 
     def getSongByName(self, title: str):
-        songData = self.database.query('''
+        songData = self.database.query(f'''
                 select title, artist."name", releasedate, playcount, length, genre."name" from "song"
                 join songby on song."songid" = songby."songid"
                 join artist on songby.artistid = artist."artistid"
                 join genre on song."genreid" = genre."genreid"
                 where (title = {title})
-                '''.format(title=title))
+                ''')
         songs = []
         for song in songData:
             songs.append(Song(title=song[0], releaseDate=song[1], playCount=song[2], length=song[3], genre=song[4]))
         return songs
+
+    #login a user
+    #checks the username and password, on successful login, update accessDateTime
+    def loginUser(self, username: str, password: str):
+        query = self.database.query(f'''
+            select userid from users
+            where (username = '{username}' and password = '{password}')
+            ''')
+        if(query == []):
+            print("invalid username or password!")
+        else:
+            #should be the only thing returned
+            userId = query[0][0]
+            self.database.query(f'''
+            update users
+            set lastaccessdate = '{datetime.now()}'
+            where userid = '{userId}'
+            ''')
