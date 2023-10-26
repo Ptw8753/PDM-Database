@@ -8,7 +8,6 @@ class Database:
         self.password = password
 
 
-
     def query(self, query: str):
         try:
             with SSHTunnelForwarder(
