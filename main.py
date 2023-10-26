@@ -7,7 +7,6 @@ def get_login():
     with open("login.json") as f:
         credentials = json.loads(f.read())
 
-        print(credentials)
         return (credentials['username'], credentials['password'])
     
 def connect_to_db():
