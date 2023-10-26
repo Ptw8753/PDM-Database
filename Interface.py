@@ -1,5 +1,5 @@
-from DB import Database
-from DataClasses import *
+from database import Database
+from data_classes import *
 
 
 # this is where we should write request queries

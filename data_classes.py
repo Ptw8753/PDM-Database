@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import date
 
 @dataclass
 class Genre:
@@ -10,16 +11,14 @@ class Song:
     title: str
     genre: Genre
     playCount: int
-    #TODO make this not an int
-    releaseDate: int
+    releaseDate: date
 
 @dataclass
 class Album:
     name: str
     songs: list[Song]
     genres: list[Genre]
-    #TODO make this not an int
-    releaseDate: int
+    releaseDate: date
 
 @dataclass
 class Artist:
@@ -29,5 +28,4 @@ class Artist:
 class Playlist:
     name: str
     songs: list[Song]
-    #TODO make this not an int
-    creationDate: int
+    creationDate: date

@@ -1,5 +1,5 @@
 from json import loads
-from Interface import Interface
+from interface import Interface
 
 
 def get_login():
