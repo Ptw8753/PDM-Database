@@ -13,6 +13,7 @@ def get_login():
 def main():
     username, password = get_login()
     interface = Interface(username, password)
+
     cli = Cli(interface)
 
 
