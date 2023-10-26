@@ -52,8 +52,9 @@ class Interface:
         else:
             #should be the only thing returned
             userId = query[0][0]
+            #this might not work
             self.database.query(f'''
             update users
-            set lastaccessdate = '{datetime.now()}'
+            set lastaccessdate = '{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
             where userid = '{userId}'
             ''')
