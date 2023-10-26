@@ -6,7 +6,7 @@ from data_classes import *
 # how to write queries:
 # self.database.query(INPUT_HERE)
 # this will return a value if any is given in the form [("element 1","element 2",...), ("element 1", "element 2")]
-# AKA list of tuples where the tuples are columns
+# AKA list of tuples where the tuples are rows and tuple elements are columns
 # Each time we do something it should be its own function
 class Interface:
     def __init__(self, username: str, password: str):
@@ -56,9 +56,9 @@ class Interface:
         if(query == []):
             print("invalid username or password!")
         else:
-            #should be the only thing returned
             userId = query[0][0]
-            #this might not work
+            #this query works when pasted into the datagrip console, but not here for some reason
+            # could be some sort of insert/update permission issue
             self.database.query(f'''
             update users
             set lastaccessdate = '{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
