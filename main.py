@@ -13,8 +13,6 @@ def get_login():
 def main():
     username, password = get_login()
     interface = Interface(username, password)
-    print(interface.getSongByMinTimePlayed("200"))
-    
     cli = Cli(interface)
 
 
