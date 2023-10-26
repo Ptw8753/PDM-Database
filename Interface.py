@@ -18,10 +18,23 @@ class Interface:
 
     def getSongByMinTimePlayed(self, minTime: str):
         songData = self.database.query('''
-        select title, releasedate, playcount, length, genre."Name" from "song"
-        join "genre" on song."genreid" = genre."GenreID"
+        select title, releasedate, playcount, length, genre."name" from "song"
+        join "genre" on song."genreid" = genre."genreid"
         where ("length" > {length})
         '''.format(length=minTime))
+        songs = []
+        for song in songData:
+            songs.append(Song(title=song[0], releaseDate=song[1], playCount=song[2], length=song[3], genre=song[4]))
+        return songs
+
+    def getSongByName(self, title: str):
+        songData = self.database.query('''
+                select title, artist."name", releasedate, playcount, length, genre."name" from "song"
+                join songby on song."songid" = songby."songid"
+                join artist on songby.artistid = artist."artistid"
+                join genre on song."genreid" = genre."genreid"
+                where (title = {title})
+                '''.format(title=title))
         songs = []
         for song in songData:
             songs.append(Song(title=song[0], releaseDate=song[1], playCount=song[2], length=song[3], genre=song[4]))
