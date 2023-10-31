@@ -71,14 +71,17 @@ class Interface:
             ''')
 
     # required
-    # todo
-    def createPlaylist(self):
-        pass
+    def createPlaylist(self, userid: str, name: str):
+        #todo untested
+        self.database.query(f'''
+        insert into playlist(playlistid, userid, name, creationdate)
+        values({str(self.getNextPlaylistId())}, {userid}, {name}, {datetime.now().strftime("%Y-%m-%d")})
+        ''')
 
     #lists the name, number of songs, and total duration
     # required
     # todo
-    def listAllCollections(self):
+    def listAllCollections(self, userid: str):
         pass
 
     #helper function to reduce duplicate code
@@ -157,12 +160,21 @@ class Interface:
         pass
 
     # required
+    #MUST BE LOGGED IN TO RUN THIS
     # todo
-    def followUser(self):
-        pass
+    def followUser(self, username: str):
+        #get the user to follow
+        userid = self.database.query(f"""
+        select userid from users where ("username" = '{username}')
+        """)[0][0]
+        print(userid)
 
     # required
     # todo
     def unfollowUser(self):
         pass
 
+#get next id functions create a new id greater than the max found in the database
+    #todo
+    def getNextPlaylistId(self):
+        return 1
