@@ -30,7 +30,7 @@ class Cli:
 * unfollow \[useremail]  
 * help \[command]  
 """
-        elif self.screen == "collection":
+        elif self.screen == "collections":
             column1 ="""
 * create \[name]  
 * +album \[collectionname]  
@@ -72,6 +72,9 @@ class Cli:
                 else:
                     self.interface.loginUser(command[1], command[2])
                     self.console.input("Press enter to continue...")
+            
+            if (command[0] == "collections"):
+                self.screen = "collections"
 
             self.console.clear()
             self.render_heading()
