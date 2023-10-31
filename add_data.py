@@ -13,36 +13,55 @@ possible_genre_combinations = [
     ["Pop", "Rock"] 
 ]
 
+
+
+# Generate 2^-i frequency distribution for i in [1:size]
+# n(i) > 2 * n(i + 1) for all 1 <= i <= size
+# n(i) != 0 for all 1 <= i <= size
+# sum({n(i) for all 1 <= i <= size}) = 1
+# limit size -> inf for get_inv2_frequencies(size) = [0.5, 0.25, 0.125, ...]
+def get_inv2_frequencies(size):
+    freqs = []
+    norm = (2 ** size - 1) / 2 ** size
+    for i in range(size):
+        freq = 2 ** -(i + 1)
+        freqs.append(freq / norm)
+    return freqs
+
+# Return an index given a list of frequencies for each index
+# Sum of freqs should be 1
+# freq(i) is the probability of i
+def random_index_freq(freqs):
+    total = 0
+    rval = random.random()
+    for i in range(len(freqs)):
+        total += freqs[i]
+        if rval < total:
+            return i
+    return len(freqs) - 1
+
+
+# Return random disjoint subsets of a given list with size specified upon call
+# List will be modified
+def random_subset_without_replacement(ls, min_size, max_size, size_freqs = None):
+    if size_freqs is not None: assert max_size - min_size == len(size_freqs) + 1
+    random.shuffle(ls)
+    i = 0
+    while i < len(ls):
+        size = random.randint(min_size, max_size) if size_freqs is None else random_index_freq(size_freqs) + min_size
+        yield ls[i : i + size]
+        i += size
+
+# Return random subsets of a given list
+def random_subset_with_replacement(ls, min_size, max_size, size_freqs = None):
+    if size_freqs is not None: assert max_size - min_size == len(size_freqs) + 1
+    while True:
+        size = random.randint(min_size, max_size) if size_freqs is None else random_index_freq(size_freqs) + min_size
+        yield random.choices(ls, k=size)
+
+
 max_n_genres = max([len(i) for i in possible_genre_combinations])
 genre_combinations_len_map = {i : [t for t in possible_genre_combinations if len(t) == i] for i in range(1, max_n_genres + 1)}
-# Get a randomly generated integer in [0, max_size] from right skewed distribution (1 -> 0.5, 2 -> 0.25, 3 -> 0.125, ... , max_size -> ~0)
-def random_ls_size(max_size):
-    sum_freqs = (2 ** max_size - 1) / 2 ** max_size                     # Divisor to normalize frequencies, so they sum to 1
-    ls_size_freqs = [(i + 1, (1 / (2 ** (i + 1))) / sum_freqs) for i in range(max_size)]
-    total = 0
-    ls_len = None
-    rval = random.random()
-    for len, freq in ls_size_freqs:
-        total += freq
-        if rval < total:
-            ls_len = len
-            break
-    if ls_len is None: ls_len = max_size
-    return ls_len
-
-# Get a random sublist from a list (using random_ls_size() to get list size)
-def random_ls(sample_ls):
-    ls_size = random_ls_size(len(sample_ls))
-    ls = []
-    seen = set()
-    for i in range(ls_size):
-        while True:
-            elem = random.choice(sample_ls)
-            if elem not in seen:
-                ls.append(elem)
-                seen.add(elem)
-                break
-    return ls
 
 # Random datetime from uniform distribution
 def random_datetime(start=start_datetime, end=end_datetime):
@@ -68,7 +87,21 @@ def python_date_to_sql(python_d : datetime.date):
     return python_dt.strftime(f)
 
 if __name__ == "__main__":
-
+    
+    # Sizes
+    min_n_album_songs = 1
+    max_n_album_songs = 12
+    min_n_album_artists = 1
+    max_n_album_artists = 3
+    
+    # Id maps
+    n_albums = 0
+    n_songs = 0
+    artist_id_map = dict()
+    n_artists = 0
+    genre_id_map = dict()
+    n_genres = 0
+    
     # Get login
     with open("login.json") as f:
         credentials = json.loads(f.read())
@@ -76,21 +109,13 @@ if __name__ == "__main__":
 
     # Load project database
     db = Database(login[0], login[1])
+    queries = []
 
     # Load attributes
-    with open("songs.txt") as f: songs = [l.strip() for l in f.readlines()]
-    with open("artists.txt") as f: artists = [l.strip() for l in f.readlines()]
+    with open("songs.txt") as f: songs = [l.strip().replace("'", "") for l in f.readlines() if len(l) <= 60]
+    with open("artists.txt") as f: artists = [l.strip().replace("'", "") for l in f.readlines() if len(l) <= 60]
     with open("genres.txt") as f: genres = [l.strip() for l in f.readlines()]
-
-    # ID -> Attribute maps
-    song_id_map = dict()
-    n_songs = 0
-    artist_id_map = dict()
-    n_artists = 0
-    genre_id_map = dict()
-    n_genres = 0
     
-    queries = []
     # Add Genre rows
     for genre_name in genres:
     
@@ -102,32 +127,23 @@ if __name__ == "__main__":
         # Add genre to database
         query = "insert into genre (genreid, name) values ({}, \'{}\');".format(genre_id, genre_name)
         queries.append(query)
-        #db.query(query)
+        db.query(query)
     
-    # Add Song, Artist, Album (single entry), AlbumContains, AlbumGenre, SongGenre, SongBy rows
-    for song_name in songs:
+    album_songs_generator = random_subset_without_replacement(songs, min_n_album_songs, max_n_album_songs)
+    album_artists_generator = random_subset_with_replacement(artists, min_n_album_artists, max_n_album_artists, size_freqs = get_inv2_frequencies(max_n_album_artists - min_n_album_artists - 1))
+    for album_songs in album_songs_generator.__iter__():
+        album_artists = album_artists_generator.__next__()
+        album_genres = random.choice(possible_genre_combinations)
+        album_name = random.choice(album_songs)
+        album_date = python_date_to_sql(random_date())
+        album_id = n_albums
+        n_albums += 1
         
-        # Get new song id
-        song_id = n_songs
-        song_id_map[song_name] = song_id
-        n_songs += 1
-        
-        # Get song duration from uniform distribution (120 - 300)
-        song_duration = int(random.uniform(120, 300.01))
-        
-        # Get song date from uniform distribution (01/01/2018 - 12/31/2022)
-        song_date = random_date()
-        
-        # Get random list of genres
-        ls_size = random_ls_size(max_n_genres)
-        genres = random.choice(genre_combinations_len_map[ls_size])
-        genre_ids = [genre_id_map[genre] for genre in genres]
-        
-        # Get random list of artists (adding artist to database if necessary)
-        artists = random_ls(artists)
         artist_ids = []
-        for artist in artists:
-            if artist not in artist_id_map:             # Add artists to database
+        for artist in album_artists:
+            
+            # Add new artist
+            if artist not in artist_id_map:
                 
                 # Get new artist id
                 artist_id = n_artists
@@ -137,51 +153,68 @@ if __name__ == "__main__":
                 # Add artist to database
                 query = "insert into artist (artistid, name) values ({}, \'{}\');".format(artist_id, artist)
                 queries.append(query)
-                #db.query(query)
+                db.query(query)
                 
-            else:                                       # Artist already in database
-                artist_id = artist_id_map[artist]
-            artist_ids.append(artist_id)
+            artist_id = artist_id_map[artist]
             
-        # Add Song to database
-        query = "insert into song (songid, length, title, releasedate) values ({}, {}, \'{}\', \'{}\');".format(song_id, song_duration, song_name, python_date_to_sql(song_date))
+        # Add each song to the database
+        song_ids = []
+        album_genre_ids = set()
+        for song in album_songs:
+            print(song)
+            
+            # Get song id
+            song_id = n_songs
+            n_songs += 1
+            song_ids.append(song_id)
+            
+            # Get song duration from uniform distribution (120 - 300)
+            song_duration = int(random.uniform(120, 300.01))
+            
+            # Get random subset of album genres 
+            genres = random.sample(album_genres, k=random.randint(1, len(album_genres)))
+            genre_ids = [genre_id_map[genre] for genre in genres]
+            for genre_id in genre_ids: album_genre_ids.add(genre_id)
+
+            # Add Song to database
+            query = "insert into song (songid, length, title, releasedate) values ({}, {}, \'{}\', \'{}\');".format(song_id, song_duration, song, album_date)
+            queries.append(query)
+            db.query(query)
+            
+            # Add SongGenres to database
+            for genre_id in genre_ids:
+                query = "insert into songgenre (songid, genreid) values ({}, {});".format(song_id, genre_id)
+                queries.append(query)
+                db.query(query)
+                
+            # Add SongBys to database
+            for artist_id in artist_ids:
+                query = "insert into songby (songid, artistid) values ({}, {});".format(song_id, artist_id)
+                queries.append(query)
+                db.query(query)
+                      
+        # Add Album to database
+        query = "insert into album (albumid, name, releasedate) values ({}, \'{}\', \'{}\');".format(album_id, album_name, album_date)
         queries.append(query)
-        #db.query(query)
+        db.query(query)
         
-        # Add SongGenre to database
-        for genre_id in genre_ids:
-            query = "insert into songgenre (songid, genreid) values ({}, {});".format(song_id, genre_id)
-            #queries.append(query)
+        # Add AlbumContains to database
+        for i in range(len(song_ids)):
+            track_no = i + 1
+            song_id = song_ids[i]
+            query = "insert into albumcontains (albumid, songid, tracknumber) values ({}, {}, {});".format(album_id, song_id, track_no)
+            queries.append(query)
             db.query(query)
         
-        # Add SongBy to database
-        for artist_id in artist_ids:
-            query = "insert into songby (songid, artistid) values ({}, {});".format(song_id, artist_id)
-            queries.append(query)
-            #db.query(query)
-        
-        # Add Album to database
-        album_id = song_id
-        album_name = song_name
-        album_date = song_date
-        query = "insert into album (albumid, name, releasedate) values ({}, \'{}\', \'{}\');".format(album_id, album_name, python_date_to_sql(album_date))
-        queries.append(query)
-        #db.query(query)
-        
-        # Add AlbumContains to database (album containing solely this song, w/ track number 1)
-        track_no = 1
-        query = "insert into albumcontains (albumid, songid, tracknumber) values ({}, {}, {});".format(album_id, song_id, track_no)
-        queries.append(query)
-        #db.query(query)
-        
         # Add AlbumGenre to database
-        for genre_id in genre_ids:
+        for genre_id in album_genre_ids:
             query = "insert into albumgenre (albumid, genreid) values ({}, {});".format(album_id, genre_id)
             queries.append(query)
-            #db.query(query)
-
-
+            db.query(query)            
+  
     # Write queries to text file
+    print(len(queries))
     with open("queries.txt", 'w') as f:
         for query in queries:
             f.write(query + '\n')
+        
