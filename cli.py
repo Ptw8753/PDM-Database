@@ -46,12 +46,17 @@ Welcome! Please selection option from the below list:
     def input_loop(self):
         input_str = "null"
 
-        while(input_str.split()[0] not in ["quit", "q"]):
-            
-            
-
+        while(input_str):
 
             input_str = self.console.input("> ")
-        
+
+            # give user quit prompt it the enter nothing or quit or q
+            if not input_str or input_str.split()[0] in ["quit", "q"]:
+                d = self.console.input("Are you sure you want to quit? (y/n) ")
+                if d in ["Y", "y"]:
+                    break
+                else:
+                    input_str = "null"
+
         self.console.clear()
         
