@@ -10,53 +10,74 @@ class Cli:
     def __init__(self, interface: Interface):
         self.interface = interface
         self.console = Console()
+        self.screen = "main"
 
         self.startup()
         self.input_loop()
 
 
-    def startup(self):
-        header = """# Principles of Data Management: Music Domain
-
-Welcome! Please selection option from the below list:
+    def print_options(self):
+        if self.screen == "main":
+            column1 ="""
+* login \[username] \[password]  
+* signup  
+* collections  
+* search \[songname]  
 """
-        
-        column1 ="""
-* option a  
-* option b  
-* option c  
-* option d  
+            column2 ="""
+* listen \[songname] or \[albumname]  
+* follow \[useremail]  
+* unfollow \[useremail]  
+* help \[command]  
 """
-        column2 ="""
-* option e  
-* option f  
-* option g  
-* option h  
+        elif self.screen == "collections":
+            column1 ="""
+* create \[name]  
+* +album \[collectionname]  
+* +song \[cllectionname]  
+* editname \[name] \[newname]  
 """
 
-        # add more columns if needed
-        columns = Columns([column1, column2])
+            column2 ="""
+* delete \[name]  
+* -album \[collectionname]  
+* -song \[collectionname]  
+* listen \[collectionname]  
+"""
+        self.console.print(Panel(Columns([column1, column2]), title="Command List"))
 
+    
+    def render_heading(self):
+        header = """# Principles of Data Management: Music Domain"""
         self.console.print(Markdown(header))
-        self.console.print("\n")
-        self.console.print(Panel(columns, title="Command List"))
+
+
+    def startup(self):
+        self.render_heading()
         self.console.print()
 
 
     def input_loop(self):
         input_str = "null"
 
-        while(input_str):
-
+        while(input_str.split()[0] not in ["quit", "q"]):
+            self.print_options()
             input_str = self.console.input("> ")
-
-            # give user quit prompt it the enter nothing or quit or q
-            if not input_str or input_str.split()[0] in ["quit", "q"]:
-                d = self.console.input("Are you sure you want to quit? (y/n) ")
-                if d in ["Y", "y"]:
-                    break
+            
+            command = input_str.split()
+            if (command[0] == "login"):
+                if len(command) != 3:
+                    self.console.print("Invalid arguments, usage: login \[username] \[password]") 
+                    self.console.input("Press enter to continue...")
                 else:
-                    input_str = "null"
+                    self.interface.loginUser(command[1], command[2])
+                    self.console.input("Press enter to continue...")
+            
+            if (command[0] == "collections"):
+                self.screen = "collections"
 
+            self.console.clear()
+            self.render_heading()
+        
         self.console.clear()
         
