@@ -25,6 +25,7 @@ class Database:
                 'port': self.server.local_bind_port
             }
             conn = psycopg2.connect(**params)
+            conn.autocommit = True
             self.cur = conn.cursor()  # if this works, you are connected
         except:
             print("error connecting to DB")
