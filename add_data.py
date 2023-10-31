@@ -100,7 +100,7 @@ if __name__ == "__main__":
         n_genres += 1
         
         # Add genre to database
-        query = "insert into genre (genreid, name) values ({}, \"{}\");".format(genre_id, genre_name)
+        query = "insert into genre (genreid, name) values ({}, \'{}\');".format(genre_id, genre_name)
         queries.append(query)
         #db.query(query)
     
@@ -135,7 +135,7 @@ if __name__ == "__main__":
                 n_artists += 1
                 
                 # Add artist to database
-                query = "insert into artist (artistid, name) values ({}, \"{}\");".format(artist_id, artist)
+                query = "insert into artist (artistid, name) values ({}, \'{}\');".format(artist_id, artist)
                 queries.append(query)
                 #db.query(query)
                 
@@ -144,15 +144,15 @@ if __name__ == "__main__":
             artist_ids.append(artist_id)
             
         # Add Song to database
-        query = "insert into song (songid, length, title, releasedate) values ({}, {}, \"{}\", {});".format(song_id, song_duration, song_name, python_date_to_sql(song_date))
+        query = "insert into song (songid, length, title, releasedate) values ({}, {}, \'{}\', \'{}\');".format(song_id, song_duration, song_name, python_date_to_sql(song_date))
         queries.append(query)
         #db.query(query)
         
         # Add SongGenre to database
         for genre_id in genre_ids:
             query = "insert into songgenre (songid, genreid) values ({}, {});".format(song_id, genre_id)
-            queries.append(query)
-            #db.query(query)
+            #queries.append(query)
+            db.query(query)
         
         # Add SongBy to database
         for artist_id in artist_ids:
@@ -164,7 +164,7 @@ if __name__ == "__main__":
         album_id = song_id
         album_name = song_name
         album_date = song_date
-        query = "insert into album (albumid, name, releasedate) values ({}, \"{}\", {});".format(album_id, album_name, python_date_to_sql(album_date))
+        query = "insert into album (albumid, name, releasedate) values ({}, \'{}\', \'{}\');".format(album_id, album_name, python_date_to_sql(album_date))
         queries.append(query)
         #db.query(query)
         
