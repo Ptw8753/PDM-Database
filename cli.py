@@ -44,12 +44,14 @@ Welcome! Please selection option from the below list:
 
 
     def input_loop(self):
-        input_str = ""
+        input_str = "null"
 
-        while(input_str.strip() not in ["quit", "q"]):
+        while(input_str.split()[0] not in ["quit", "q"]):
             
             
 
 
             input_str = self.console.input("> ")
+        
+        self.console.clear()
         
