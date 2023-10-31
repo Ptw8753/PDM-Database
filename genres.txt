@@ -1,0 +1,9 @@
+Rap
+Reggae
+Country
+Pop
+RnB
+Classical
+Electronic
+Rock
+Funk
