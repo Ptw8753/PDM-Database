@@ -1,6 +1,9 @@
+import random
+import sys
+
 from database import Database
 from data_classes import *
-
+import random as rand
 
 # this is where we should write request queries
 # how to write queries:
@@ -72,10 +75,9 @@ class Interface:
 
     # required
     def createPlaylist(self, userid: str, name: str):
-        #todo untested
         self.database.query(f'''
         insert into playlist(playlistid, userid, name, creationdate)
-        values({str(self.getNextPlaylistId())}, {userid}, {name}, {datetime.now().strftime("%Y-%m-%d")})
+        values({self.generateIdForTable("playlist")}, {userid}, '{name}', '{datetime.now().strftime("%Y-%m-%d")}')
         ''')
 
     #lists the name, number of songs, and total duration
@@ -86,7 +88,6 @@ class Interface:
 
     #helper function to reduce duplicate code
     def getSongJoinQuery(self) -> str:
-        #what if multiple albums???
         return ('''
         select title, artist.name, album.name, length, count
         from song
@@ -175,6 +176,9 @@ class Interface:
         pass
 
 #get next id functions create a new id greater than the max found in the database
-    #todo
-    def getNextPlaylistId(self):
-        return 1
+    def generateIdForTable(self, tableName: str) -> str:
+        newId = rand.randint(0, 2147483647)
+        while True:
+            if(self.database.query(f"""select {tableName}id from {tableName} where {tableName}id = {newId}""")) == []:
+                return str(newId)
+            newId = rand.randint(0, 2147483647)
