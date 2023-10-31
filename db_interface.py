@@ -13,6 +13,7 @@ class Interface:
         self.database = Database(username, password)
 
     #query to get all genres
+    #example query
     def getAllGenres(self):
         genreData = self.database.query("select * from \"genre\"")
         genres = []
@@ -21,6 +22,7 @@ class Interface:
         return genres
 
     #query to get all songs where length > minTime
+    #example query
     def getSongByMinTimePlayed(self, minTime: str):
         songData = self.database.query(f'''
         select title, releasedate, playcount, length, genre."name" from "song"
@@ -33,6 +35,7 @@ class Interface:
         return songs
 
     #gets a song by name, joins artist name and genre name
+    #example query
     def getSongByName(self, title: str):
         songData = self.database.query(f'''
                 select title, artist."name", releasedate, playcount, length, genre."name" from "song"
@@ -46,8 +49,10 @@ class Interface:
             songs.append(Song(title=song[0], releaseDate=song[1], playCount=song[2], length=song[3], genre=song[4]))
         return songs
 
+    #todo
     #login a user
     #checks the username and password, on successful login, update accessDateTime
+    #required
     def loginUser(self, username: str, password: str):
         query = self.database.query(f'''
             select userid from users
@@ -64,3 +69,100 @@ class Interface:
             set lastaccessdate = '{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
             where userid = '{userId}'
             ''')
+
+    # required
+    # todo
+    def createPlaylist(self):
+        pass
+
+    #lists the name, number of songs, and total duration
+    # required
+    # todo
+    def listAllCollections(self):
+        pass
+
+    #helper function to reduce duplicate code
+    def getSongJoinQuery(self) -> str:
+        #what if multiple albums???
+        return ('''
+        select title, artist.name, album.name, length, count
+        from song
+        join songby on id = songby.songid
+        join artist on songby.id = artist.id
+        join genre on genreid = genre.id
+        #TODO GET THE PLAY COUNT
+        ''')
+
+    # song searches
+    # each entry must list song name, artist name, album, length, and listen count
+    # required
+    # todo
+    def searchSongByName(self):
+        pass
+
+    # required
+    # todo
+    def searchSongByArtist(self):
+        pass
+
+    # required
+    # todo
+    def searchSongByAlbum(self):
+        pass
+
+    # required
+    # todo
+    def searchSongByGenre(self):
+        pass
+
+    # required
+    # todo
+    def addSongToPlaylist(self):
+        pass
+
+    # required
+    # todo
+    def addAlbumToPlaylist(self):
+        pass
+
+    # required
+    # todo
+    def deleteSongFromPlaylist(self):
+        pass
+
+    #remove intersection
+    # required
+    # todo
+    def deleteAlbumFromPlaylist(self):
+        pass
+
+    # required
+    # todo
+    def renamePlaylist(self):
+        pass
+
+    # required
+    # todo
+    def deletePlaylist(self):
+        pass
+
+    # required
+    # todo
+    def playSong(self):
+        pass
+
+    # required
+    # todo
+    def playPlaylist(self):
+        pass
+
+    # required
+    # todo
+    def followUser(self):
+        pass
+
+    # required
+    # todo
+    def unfollowUser(self):
+        pass
+
