@@ -83,8 +83,16 @@ class Interface:
     #lists the name, number of songs, and total duration
     # required
     # todo
+    #lists every playlist a user has created
+    # (number songs and total aren't stored explicitly
+    # probably need helper function/query
     def listAllCollections(self, userid: str):
         pass
+        self.database.query(f'''
+        select playlist.name from playlist
+        where userid = playlist.userid
+        values({userid})
+        ''')
 
     #helper function to reduce duplicate code
     def getSongJoinQuery(self) -> str:
