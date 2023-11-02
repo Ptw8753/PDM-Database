@@ -36,6 +36,7 @@ class Database:
     def query(self, query: str):
         self.cur.execute(query)
         try:
+            
             result = self.cur.fetchall()
         except:
             return None

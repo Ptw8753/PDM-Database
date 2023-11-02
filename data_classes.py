@@ -9,11 +9,11 @@ class Genre:
 
 @dataclass
 class Song:
-    length: int
     title: str
-    genre: Genre
-    playCount: int
-    releaseDate: date
+    artistName: str
+    albumNames: list[str]
+    length: int
+    listenCount: int
 
 
 @dataclass

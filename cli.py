@@ -98,8 +98,28 @@ Enter "quit" or "q" to """
                 
 
     def signup(self, command):
-        # TODO: make new account here
-        pass
+        username = self.console.input("Username: ")
+        x = self.interface.isUsernameUsed(username)
+        while (x):
+            self.console.print("That username is already taken!")
+            username = self.console.input("Username: ")
+            x = self.interface.isUsernameUsed(username)
+
+        password = self.console.input("Password: ")
+        y = len(password) < 8
+        while(y):
+            self.console.print("Your password must be at least 8 characters long!")
+            password = self.console.input("Password: ")
+            y = len(password) < 8
+        fname = self.console.input("First Name: ")
+        lname = self.console.input("Last Name: ")
+        email = self.console.input("Email: ")
+        success = self.interface.createUser(username, password, fname, lname, email)
+        if success:
+            self.console.print(f"Account successfully created!\nWelcome {fname} {lname}")
+        else:
+            self.console.print("Something went wrong! Account was not created :(")
+        self.console.input("Press enter to continue...")
 
 
     def listen(self, command):

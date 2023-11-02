@@ -1,6 +1,7 @@
 import random
 import sys
 
+from datetime import datetime
 from database import Database
 from data_classes import *
 import random as rand
@@ -71,7 +72,29 @@ class Interface:
             set lastaccessdate = '{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
             where userid = '{userId}'
             ''')
-        return userId
+
+    # checks if a username is in the users table.
+    # returns true if the username is used.
+    def isUsernameUsed(self, username: str):
+        query = self.database.query(f'''
+            select userid from users where username = '{username}'                                  
+            ''')
+        return query != []
+
+    # create a row of user table
+    # returns false if an error
+    def createUser(self, username, password, firstname, lastname, email):
+        id = self.generateIdForTable("users")
+        d = datetime.now()
+        creation_date = f"{d.year}-{d.month}-{d.day}"
+        query = self.database.query(f'''
+            insert into users(userid, username, password, firstname, lastname, email, creationdate, lastaccessdate)
+            values({id}, '{username}', '{password}', '{firstname}', '{lastname}', '{email}', '{creation_date}', '{d}')                         
+            ''')
+        if self.isUsernameUsed(username):
+            return True
+        else:
+            return False
 
     # required
     def createPlaylist(self, userid: str, name: str):
@@ -90,7 +113,8 @@ class Interface:
         pass
         self.database.query(f'''
         select playlist.name from playlist
-        where {userid} = playlist.userid
+        where userid = playlist.userid
+        values({userid})
         ''')
 
     #helper function to reduce duplicate code
@@ -111,7 +135,6 @@ class Interface:
     def searchSongByName(self):
         pass
 
-
     # required
     # todo
     def searchSongByArtist(self):
@@ -129,18 +152,18 @@ class Interface:
 
     # required
     # todo
-    def addSongToPlaylist(self,playlistid,userid):
+    def addSongToPlaylist(self):
         pass
-        self.database.query(f'''
-        insert into playlistcontains values({playlistid},{userid},
-        (select count(playlistid) from playlistcontains 
-        where playlistcontains.playlistid = {playlistid}) + 1)
-        ''')
 
     # required
     # todo
-    def addAlbumToPlaylist(self):
+    def addAlbumToPlaylist(self,playlistid,albumid):
         pass
+        self.database.query(f'''
+        insert into PlaylistContains values({playlistid},{userid},
+        (select count(playlistid) from playlistcontains 
+        where playlistcontains.playlistid = {playlistid}) + 1)
+        ''')
 
     # required
     # todo
@@ -208,6 +231,9 @@ class Interface:
     def generateIdForTable(self, tableName: str) -> str:
         newId = rand.randint(0, 2147483647)
         while True:
-            if(self.database.query(f"""select {tableName}id from {tableName} where {tableName}id = {newId}""")) == []:
+            id = f"{tableName}id"
+            if tableName == "users":
+                id = "userid"
+            if(self.database.query(f"""select {id} from {tableName} where {id} = {newId}""")) == []:
                 return str(newId)
             newId = rand.randint(0, 2147483647)
