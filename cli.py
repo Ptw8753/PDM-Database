@@ -104,6 +104,8 @@ Enter "quit" or "q" to """
             self.console.print(f"Account successfully created!\nWelcome {fname} {lname}")
         else:
             self.console.print("Something went wrong! Account was not created :(")
+        self.console.input("Press enter to continue...")
+
 
     def listen(self, command):
         if len(command) != 2:

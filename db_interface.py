@@ -92,10 +92,10 @@ class Interface:
             insert into users(userid, username, password, firstname, lastname, email, creationdate, lastaccessdate)
             values({id}, '{username}', '{password}', '{firstname}', '{lastname}', '{email}', '{creation_date}', '{d}')                         
             ''')
-        if query is None:
-            return False
-        else:
+        if self.isUsernameUsed(username):
             return True
+        else:
+            return False
 
     # required
     def createPlaylist(self, userid: str, name: str):
