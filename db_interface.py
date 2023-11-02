@@ -1,6 +1,7 @@
 import random
 import sys
 
+from datetime import datetime
 from database import Database
 from data_classes import *
 import random as rand
@@ -19,13 +20,12 @@ class Interface:
     #checks the username and password, on successful login, update accessDateTime
     #required
     def loginUser(self, username: str, password: str):
+        userId = None
         query = self.database.query(f'''
             select userid from users
             where (username = '{username}' and password = '{password}')
             ''')
-        if(query == []):
-            print("invalid username or password!")
-        else:
+        if(query != []):
             userId = query[0][0]
             #this query works when pasted into the datagrip console, but not here for some reason
             # could be some sort of insert/update permission issue
@@ -34,7 +34,31 @@ class Interface:
             set lastaccessdate = '{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
             where userid = '{userId}'
             ''')
-            return userId
+
+        return userId
+
+    # checks if a username is in the users table.
+    # returns true if the username is used.
+    def isUsernameUsed(self, username: str):
+        query = self.database.query(f'''
+            select userid from users where username = '{username}'                                  
+            ''')
+        return query != []
+
+    # create a row of user table
+    # returns false if an error
+    def createUser(self, username, password, firstname, lastname, email):
+        id = self.generateIdForTable("users")
+        d = datetime.now()
+        creation_date = f"{d.year}-{d.month}-{d.day}"
+        query = self.database.query(f'''
+            insert into users(userid, username, password, firstname, lastname, email, creationdate, lastaccessdate)
+            values({id}, '{username}', '{password}', '{firstname}', '{lastname}', '{email}', '{creation_date}', '{d}')                         
+            ''')
+        if self.isUsernameUsed(username):
+            return True
+        else:
+            return False
 
     # required
     def createPlaylist(self, userid: str, name: str):
@@ -53,62 +77,58 @@ class Interface:
         pass
         self.database.query(f'''
         select playlist.name from playlist
-        where {userid} = playlist.userid
+        where userid = playlist.userid
+        values({userid})
         ''')
 
     #helper function to reduce duplicate code
-    def executeSongQueryWithWhereClause(self, where: str) -> list[Song]:
+    def executeSongQueryWithWhereClause(self, where: str) -> str:
         query = f'''
-        select song.title, artist.name, album.name, genre.name, song.length, count(song.songid)
+        select song.title, artist.name, album.name, song.length, count(song.songid)
         from song
         join songby on song.songid = songby.songid
         join artist on songby.artistid = artist.artistid
         join albumcontains on song.songid = albumcontains.songid
         join album on albumcontains.albumid = album.albumid
-        join songgenre on song.songid = songgenre.songid
-        join genre on songgenre.genreid = genre.genreid
         left join listensto on song.songid = listensto.songid
         {where}
-        group by song.title, artist.name, album.name, song.length, genre.name
+        group by song.title, artist.name, album.name, song.length
         '''
 
         songData = self.database.query(query)
-        songs = {}
+        albums = []
         for song in songData:
-            if song[0] in songs.keys():
-                if song[2] not in songs[song[0]].albumNames:
-                    songs[song[0]].albumNames.append(song[2])
-                if song[3] not in songs[song[0]].genres:
-                    songs[song[0]].genres.append(song[3])
-            else:
-                songs[song[0]] = Song(title=song[0], artistName=song[1], albumNames = [song[2]], genres=[song[3]], length=song[4], listenCount=song[5])
+            albums.append(song[2])
 
-        test = list(songs.values())
-        return test
+        song = Song(title=songData[0][0], artistName=songData[0][1], albumNames = albums, length=songData[0][3], listenCount=songData[0][4])
+        print(song)
+        return song
         #populate song here
     # song searches
     # each entry must list song name, artist name, album, length, and listen count
     # required
-    def searchSongByTitle(self, title:str) -> list[Song]:
-        where = f'''where song.title = '{title}' '''
-        return self.executeSongQueryWithWhereClause(where)
+    # todo
+    def searchSongByTitle(self, title:str):
+        where = f'''
+        where song.title = '{title}'
+        '''
+        self.executeSongQueryWithWhereClause(where)
+
 
     # required
-    def searchSongByArtist(self, artistName: str) -> list[Song]:
-        where = f'''where artist.name = '{artistName}' '''
-        return self.executeSongQueryWithWhereClause(where)
+    # todo
+    def searchSongByArtist(self):
+        pass
 
     # required
-    # todo should this return ALL albums that it is in or just the one we query?
-    def searchSongByAlbum(self, albumName: str) -> list[Song]:
-        where = f'''where album.name = '{albumName}' '''
-        return self.executeSongQueryWithWhereClause(where)
+    # todo
+    def searchSongByAlbum(self):
+        pass
 
     # required
-    # todo should this return ALL genres that it is or just the one we query?
-    def searchSongByGenre(self, genre: str) -> list[Song]:
-        where = f'''where genre.name = '{genre}' '''
-        return self.executeSongQueryWithWhereClause(where)
+    # todo
+    def searchSongByGenre(self):
+        pass
 
     # required
     # todo
@@ -122,10 +142,12 @@ class Interface:
 
     # required
     # todo
-    def addAlbumToPlaylist(self):
+    def addAlbumToPlaylist(self,playlistid,albumid):
         pass
         self.database.query(f'''
-        insert into PlaylistContains
+        insert into PlaylistContains values({playlistid},{userid},
+        (select count(playlistid) from playlistcontains 
+        where playlistcontains.playlistid = {playlistid}) + 1)
         ''')
 
     # required
@@ -153,9 +175,24 @@ class Interface:
         pass
 
     # required
-    # todo
-    def playSong(self):
-        pass
+    def playSong(self, song_name, userid):
+        songid = self.database.query(f'''
+        select songid from song 
+        where song.title = '{song_name}'
+        ''')
+
+        if(songid != []):
+            songid = songid[0][0]
+        else:
+            return False
+
+        self.database.query(f'''
+        insert into listensto values({userid}, {songid},
+        '{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+        ''')
+
+        return True
+
 
     # required
     # todo
@@ -181,6 +218,9 @@ class Interface:
     def generateIdForTable(self, tableName: str) -> str:
         newId = rand.randint(0, 2147483647)
         while True:
-            if(self.database.query(f"""select {tableName}id from {tableName} where {tableName}id = {newId}""")) == []:
+            id = f"{tableName}id"
+            if tableName == "users":
+                id = "userid"
+            if(self.database.query(f"""select {id} from {tableName} where {id} = {newId}""")) == []:
                 return str(newId)
             newId = rand.randint(0, 2147483647)
