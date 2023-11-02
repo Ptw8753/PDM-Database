@@ -276,14 +276,14 @@ class Interface:
     # required
     def renamePlaylist(self, userid: int, old_name: str, new_name: str):
         query = self.database.query(f'''
-        select name from playlist where name = '{old_name}' and userid = {user_id}
+        select name from playlist where name = '{old_name}' and userid = {userid}
         ''')
         if query == []:
             return False
         else:
             self.database.query(f'''
             update playlist set name = '{new_name}'
-            where name = '{old_name}' and userid = {user_id}
+            where name = '{old_name}' and userid = {userid}
             ''')
             return True
 
