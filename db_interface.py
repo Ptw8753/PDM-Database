@@ -16,6 +16,44 @@ class Interface:
     def __init__(self, username: str, password: str):
         self.database = Database(username, password)
 
+    #query to get all genres
+    #example query
+    def getAllGenres(self):
+        genreData = self.database.query("select * from \"genre\"")
+        genres = []
+        for genre in genreData:
+            genres.append(Genre(name=genre[1]))
+        return genres
+
+    #query to get all songs where length > minTime
+    #example query
+    def getSongByMinTimePlayed(self, minTime: str):
+        songData = self.database.query(f'''
+        select title, releasedate, playcount, length, genre."name" from "song"
+        join "genre" on song."genreid" = genre."genreid"
+        where ("length" > {minTime})
+        ''')
+        songs = []
+        for song in songData:
+            songs.append(Song(title=song[0], releaseDate=song[1], playCount=song[2], length=song[3], genre=song[4]))
+        return songs
+
+    #gets a song by name, joins artist name and genre name
+    #example query
+    def getSongByName(self, title: str):
+        songData = self.database.query(f'''
+                select title, artist."name", releasedate, playcount, length, genre."name" from "song"
+                join songby on song."songid" = songby."songid"
+                join artist on songby.artistid = artist."artistid"
+                join genre on song."genreid" = genre."genreid"
+                where (title = {title})
+                ''')
+        songs = []
+        for song in songData:
+            songs.append(Song(title=song[0], releaseDate=song[1], playCount=song[2], length=song[3], genre=song[4]))
+        return songs
+
+    #todo
     #login a user
     #checks the username and password, on successful login, update accessDateTime
     #required
@@ -35,7 +73,6 @@ class Interface:
             set lastaccessdate = '{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
             where userid = '{userId}'
             ''')
-            return userId
 
     # checks if a username is in the users table.
     # returns true if the username is used.
@@ -46,7 +83,7 @@ class Interface:
         return query != []
 
     # create a row of user table
-    # returns false if an error happened
+    # returns false if an error
     def createUser(self, username, password, firstname, lastname, email):
         id = self.generateIdForTable("users")
         d = datetime.now()
@@ -77,42 +114,27 @@ class Interface:
         pass
         self.database.query(f'''
         select playlist.name from playlist
-        where {userid} = playlist.userid
+        where userid = playlist.userid
+        values({userid})
         ''')
 
     #helper function to reduce duplicate code
-    def executeSongQueryWithWhereClause(self, where: str) -> str:
-        query = f'''
-        select song.title, artist.name, album.name, song.length, count(song.songid)
+    def getSongJoinQuery(self) -> str:
+        return ('''
+        select title, artist.name, album.name, length, count
         from song
-        join songby on song.songid = songby.songid
-        join artist on songby.artistid = artist.artistid
-        join albumcontains on song.songid = albumcontains.songid
-        join album on albumcontains.albumid = album.albumid
-        left join listensto on song.songid = listensto.songid
-        {where}
-        group by song.title, artist.name, album.name, song.length
-        '''
+        join songby on id = songby.songid
+        join artist on songby.id = artist.id
+        join genre on genreid = genre.id
+        #TODO GET THE PLAY COUNT
+        ''')
 
-        songData = self.database.query(query)
-        albums = []
-        for song in songData:
-            albums.append(song[2])
-
-        song = Song(title=songData[0][0], artistName=songData[0][1], albumNames = albums, length=songData[0][3], listenCount=songData[0][4])
-        print(song)
-        return song
-        #populate song here
     # song searches
     # each entry must list song name, artist name, album, length, and listen count
     # required
     # todo
-    def searchSongByTitle(self, title:str):
-        where = f'''
-        where song.title = '{title}'
-        '''
-        self.executeSongQueryWithWhereClause(where)
-
+    def searchSongByName(self):
+        pass
 
     # required
     # todo
@@ -131,29 +153,18 @@ class Interface:
 
     # required
     # todo
-    def addSongToPlaylist(self,playlistid,songid):
+    def addSongToPlaylist(self):
         pass
-        self.database.query(f'''
-        insert into PlaylistContains values({playlistid},{songid},
-        (select count(playlistid) from playlistcontains 
-        where playlistcontains.playlistid = {playlistid}) + 1)
-        ''')
 
     # required
     # todo
     def addAlbumToPlaylist(self):
         pass
-        self.database.query(f'''
-        insert into PlaylistContains
-        ''')
 
     # required
     # todo
     def deleteSongFromPlaylist(self):
         pass
-        self.database.query(f'''
-
-        ''')
 
     #remove intersection
     # required
@@ -200,6 +211,9 @@ class Interface:
     def generateIdForTable(self, tableName: str) -> str:
         newId = rand.randint(0, 2147483647)
         while True:
-            if(self.database.query(f"""select {tableName}id from {tableName} where {tableName}id = {newId}""")) == []:
+            id = f"{tableName}id"
+            if tableName == "users":
+                id = "userid"
+            if(self.database.query(f"""select {id} from {tableName} where {id} = {newId}""")) == []:
                 return str(newId)
             newId = rand.randint(0, 2147483647)

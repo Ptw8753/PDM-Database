@@ -34,8 +34,9 @@ class Database:
         self.server.stop()
 
     def query(self, query: str):
+        self.cur.execute(query)
         try:
-            self.cur.execute(query)
+            
             result = self.cur.fetchall()
         except:
             return None
