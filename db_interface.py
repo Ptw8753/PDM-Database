@@ -34,6 +34,7 @@ class Interface:
             set lastaccessdate = '{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
             where userid = '{userId}'
             ''')
+            return userId
 
     # required
     def createPlaylist(self, userid: str, name: str):
@@ -52,8 +53,7 @@ class Interface:
         pass
         self.database.query(f'''
         select playlist.name from playlist
-        where userid = playlist.userid
-        values({userid})
+        where {userid} = playlist.userid
         ''')
 
     #helper function to reduce duplicate code
@@ -89,6 +89,7 @@ class Interface:
         '''
         self.executeSongQueryWithWhereClause(where)
 
+
     # required
     # todo
     def searchSongByArtist(self):
@@ -106,18 +107,29 @@ class Interface:
 
     # required
     # todo
-    def addSongToPlaylist(self):
+    def addSongToPlaylist(self,playlistid,songid):
         pass
+        self.database.query(f'''
+        insert into PlaylistContains values({playlistid},{songid},
+        (select count(playlistid) from playlistcontains 
+        where playlistcontains.playlistid = {playlistid}) + 1)
+        ''')
 
     # required
     # todo
     def addAlbumToPlaylist(self):
         pass
+        self.database.query(f'''
+        insert into PlaylistContains
+        ''')
 
     # required
     # todo
     def deleteSongFromPlaylist(self):
         pass
+        self.database.query(f'''
+
+        ''')
 
     #remove intersection
     # required
