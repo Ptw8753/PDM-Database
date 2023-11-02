@@ -272,7 +272,7 @@ Enter "quit" or "q" to """
             self.console.input("Press enter to continue...")
             return
         else:
-            result = self.interface.deletePlaylist(self.login_id, name) # TODO have to remove all playlist contains with this playlist!!
+            result = self.interface.deletePlaylist(self.login_id, name)
             if result == False:
                 self.console.print(f"Collection {name} does not exist.")
             else:

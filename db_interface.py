@@ -283,7 +283,7 @@ class Interface:
         if playlistid == None:
             return False
         
-        self.clearPlaylist(userid, playlistid)
+        self.clearPlaylist(playlistid)
         
         self.database.query(f'''
         delete from playlist where 
