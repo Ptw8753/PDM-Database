@@ -208,6 +208,7 @@ class Interface:
 
     # required
     # todo
+    # TODO this query dont look right
     def addAlbumToPlaylist(self, playlistid, albumid, userid):
         pass
         self.database.query(f'''
@@ -239,10 +240,27 @@ class Interface:
         pass
 
 
-    # required
+    # required{
     # todo
-    def deletePlaylist(self):
-        pass
+    def deletePlaylist(self, userid, name):
+        result = self.database.query(f'''
+        select playlistid from playlist where 
+        playlist.name = '{name}' and
+        playlist.userid = {userid}
+        ''')
+
+        if result == []:
+            return False
+        else:
+            playlistid = result[0][0]
+        
+        self.database.query(f'''
+        delete from playlist where 
+        playlist.playlistid = {playlistid} and
+        playlist.userid = {userid}
+        ''')
+
+        return True
 
 
     # required

@@ -110,7 +110,7 @@ Enter "quit" or "q" to """
                 column = "[bright_red]"
 
             elif i == len(collections):
-                columns += "\n"
+                column += "\n"
 
         columns.append(column)
         return columns
@@ -232,6 +232,7 @@ Enter "quit" or "q" to """
             self.console.print("Something went wrong")
             self.console.input("Press enter to continue...")
 
+
     def help(self, command):
         # TODO
         # maybe we do this, not needed
@@ -255,8 +256,29 @@ Enter "quit" or "q" to """
             self.console.input("Press enter to continue...")
 
     def delete(self, command):
-        # TODO
-        pass
+        if len(command) < 2:
+            self.console.print("Invalid arguments, usage: create \[name]")
+            self.console.input("Press enter to continue...")
+
+        name = self.stringify(command[1:])
+
+        if (self.login_id == None):
+            self.console.print("Log in to delete a playlist.")
+            self.console.input("Press enter to continue...")
+            return
+        
+        if self.interface.listAllCollections(self.login_id) == []:
+            self.console.print("You have no collections to delete.")
+            self.console.input("Press enter to continue...")
+            return
+
+        else:
+            result = self.interface.deletePlaylist(self.login_id, name)
+            if result == False:
+                self.console.print(f"Collection {name} does not exist.")
+            else:
+                self.console.print(f"Successfully deleted {name}.")
+            self.console.input("Press enter to continue...")
 
 
     def add_album(self, command):
