@@ -130,10 +130,10 @@ class Interface:
 
     # required
     # todo
-    def addSongToPlaylist(self,playlistid,userid):
+    def addSongToPlaylist(self,playlistid,songid):
         pass
         self.database.query(f'''
-        insert into PlaylistContains values({playlistid},{userid},
+        insert into PlaylistContains values({playlistid},{songid},
         (select count(playlistid) from playlistcontains 
         where playlistcontains.playlistid = {playlistid}) + 1)
         ''')
@@ -142,11 +142,17 @@ class Interface:
     # todo
     def addAlbumToPlaylist(self):
         pass
+        self.database.query(f'''
+        insert into PlaylistContains
+        ''')
 
     # required
     # todo
     def deleteSongFromPlaylist(self):
         pass
+        self.database.query(f'''
+
+        ''')
 
     #remove intersection
     # required
