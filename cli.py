@@ -255,6 +255,7 @@ Enter "quit" or "q" to """
             self.console.print(f"Successfully created {name}.")
             self.console.input("Press enter to continue...")
 
+
     def delete(self, command):
         if len(command) < 2:
             self.console.print("Invalid arguments, usage: create \[name]")
@@ -266,12 +267,10 @@ Enter "quit" or "q" to """
             self.console.print("Log in to delete a playlist.")
             self.console.input("Press enter to continue...")
             return
-        
         if self.interface.listAllCollections(self.login_id) == []:
             self.console.print("You have no collections to delete.")
             self.console.input("Press enter to continue...")
             return
-
         else:
             result = self.interface.deletePlaylist(self.login_id, name)
             if result == False:
@@ -321,13 +320,13 @@ Enter "quit" or "q" to """
             pass
         pass
 
+
     def search_albums(self, command):
         # search albums <keyword> optional<sort> optional<ASC/DESC>
         songs = list()
         if len(command) == 5:
             pass
         pass
-
 
 
     def search_artists(self, command):
@@ -338,14 +337,12 @@ Enter "quit" or "q" to """
         pass
 
 
-
     def search_genres(self, command):
         # search genres <keyword> optional<sort> optional<ASC/DESC>
         songs = list()
         if len(command) == 5:
             pass
         pass
-
 
 
     def input_loop(self):
