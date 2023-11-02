@@ -17,9 +17,6 @@ class Cli:
         self.render_heading()
         self.input_loop()
 
-    def isLoggedIn(self):
-        return self.username is not None
-
     def print_options(self):
         if self.screen == "main":
             column1 ="""[bright_green]
@@ -145,7 +142,7 @@ Enter "quit" or "q" to """
 
 
     def follow(self, command):
-        if self.loginId is None:
+        if self.login_id is None:
             self.console.print("You must be logged in!")
             self.console.input("Press enter to continue...")
             return
@@ -160,11 +157,11 @@ Enter "quit" or "q" to """
             email = self.console.input("Enter email of user you want to follow: ")
             x = self.interface.isEmailUsed(email)
         
-        if self.interface.isFollowing(self.loginId, self.interface.getIDfromEmail(email)):
+        if self.interface.isFollowing(self.login_id, self.interface.getIDfromEmail(email)):
             self.console.print("You are already following that user!")
             self.console.input("Press enter to continue...")
             return
-        success = self.interface.followUserEmail(self.loginId, email)
+        success = self.interface.followUserEmail(self.login_id, email)
         if success:
             self.console.print(f"Successfully followed user {email}")
             self.console.input("Press enter to continue...")
