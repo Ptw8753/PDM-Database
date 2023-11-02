@@ -278,16 +278,10 @@ class Interface:
 
     # required
     def deletePlaylist(self, userid, name):
-        result = self.database.query(f'''
-        select playlistid from playlist where 
-        playlist.name = '{name}' and
-        playlist.userid = {userid}
-        ''')
+        playlistid = self.getPlaylistid(name, userid)
 
-        if result == []:
+        if playlistid == None:
             return False
-        else:
-            playlistid = result[0][0]
         
         self.database.query(f'''
         delete from playlist where 
@@ -300,14 +294,9 @@ class Interface:
 
     # required
     def playSong(self, song_name, userid):
-        songid = self.database.query(f'''
-        select songid from song 
-        where song.title = '{song_name}'
-        ''')
+        songid = self.getSongId(song_name, userid)
 
-        if(songid != []):
-            songid = songid[0][0]
-        else:
+        if songid == None:
             return False
 
         self.database.query(f'''
