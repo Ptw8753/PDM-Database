@@ -243,7 +243,7 @@ Enter "quit" or "q" to """
         name = self.stringify(command[1:])
 
         if (self.login_id == None):
-            self.console.print("Log in to create a playlist.")
+            self.console.print("Log in to create a collection.")
             self.console.input("Press enter to continue...")
             return
 
@@ -264,7 +264,7 @@ Enter "quit" or "q" to """
         name = self.stringify(command[1:])
 
         if (self.login_id == None):
-            self.console.print("Log in to delete a playlist.")
+            self.console.print("Log in to delete a collection.")
             self.console.input("Press enter to continue...")
             return
         if self.interface.listAllCollections(self.login_id) == []:
@@ -291,8 +291,36 @@ Enter "quit" or "q" to """
 
 
     def add_song(self, command):
-        # TODO
-        pass
+        if len(command) != 2:
+            self.console.print("Invalid arguments, usage: +song \[collectionname]")
+            self.console.input("Press enter to continue...")
+            return
+
+        name = self.stringify(command[1:])
+
+        if (self.login_id == None):
+            self.console.print("Log in to add songs to a collection.")
+            self.console.input("Press enter to continue...")
+            return
+        if self.interface.getPlaylistid(name, self.login_id) == []:
+            self.console.print("You have no collections to add songs to.")
+            self.console.input("Press enter to continue...")
+            return
+        else:
+            playlistid = self.interface.getPlaylistid(name, self.login_id)
+            if playlistid == None:
+                self.console.print(f"Collection {name} does not exist.")
+            else:
+                self.console.print("Enter \"quit\" or \"q\" to stop.")
+                song = self.console.input("Add song: ")
+                while song not in ["q", "quit"]:
+                    result = self.interface.addSongToPlaylist(playlistid, song)
+                    if result == False:
+                        self.console.print("Invalid song.")
+                    song = self.console.input("Add song: ")
+
+                self.console.print(f"Successfully added songs to collection.")
+            self.console.input("Press enter to continue...")
 
 
     def delete_song(self, command):

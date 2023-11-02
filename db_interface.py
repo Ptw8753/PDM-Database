@@ -195,12 +195,40 @@ class Interface:
         return self.search("genre.name", keyword, sort, sort_type)
 
 
+    def getPlaylistid(self, name, userid):
+        result = self.database.query(f'''
+        select playlistid from playlist where 
+        playlist.name = '{name}' and
+        playlist.userid = {userid}
+        ''')
+
+        if result != []:
+            return result[0][0]
+        else:
+            return None
+    
+
+    def getSongId(self, name):
+        songid = self.database.query(f'''
+        select songid from song 
+        where song.title = '{name}'
+        ''')
+
+        if(songid != []):
+            return songid[0][0]
+        else:
+            return None
+
+
     # required
     # todo
-    def addSongToPlaylist(self, playlistid, songid):
-        pass
+    def addSongToPlaylist(self, playlistid, song_name):        
+        songid = self.getSongId(song_name)
+        if songid == None:
+            return False
+
         self.database.query(f'''
-        insert into PlaylistContains values({playlistid},{songid},
+        insert into playlistContains values({playlistid},{songid},
         (select count(playlistid) from playlistcontains 
         where playlistcontains.playlistid = {playlistid}) + 1)
         ''')
@@ -248,8 +276,7 @@ class Interface:
             ''')
             return True
 
-    # required{
-    # todo
+    # required
     def deletePlaylist(self, userid, name):
         result = self.database.query(f'''
         select playlistid from playlist where 
@@ -307,6 +334,7 @@ class Interface:
         else:
             return True
 
+
     # follow another user by giving their email
     # return success T/F
     def followUserEmail(self, userid: int, emailtofollow: str):
@@ -319,6 +347,7 @@ class Interface:
             ''')
         return self.isFollowing(userid, otherid)
     
+
     # unfollow a user by giving their email
     # return success T/F
     def unfollowUserEmail(self, userid: int, emailtounfollow: str):
@@ -330,22 +359,6 @@ class Interface:
             where userid = {userid} and followid = {otherid}
             ''')
         return not self.isFollowing(userid, otherid)
-
-    # required
-    #MUST BE LOGGED IN TO RUN THIS
-    # todo
-    def followUser(self, username: str):
-        #get the user to follow
-        userid = self.database.query(f"""
-        select userid from users where ("username" = '{username}')
-        """)[0][0]
-        print(userid)
-
-
-    # required
-    # todo
-    def unfollowUser(self):
-        pass
 
 
     #get next id functions create a new id greater than the max found in the database
