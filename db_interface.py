@@ -235,10 +235,18 @@ class Interface:
 
 
     # required
-    # todo
-    def renamePlaylist(self):
-        pass
-
+    def renamePlaylist(self, userid: int, oldName: str, newName: str):
+        query = self.database.query(f'''
+        select name from playlist where name = '{oldName}' and userid = {userid}
+        ''')
+        if query == []:
+            return False
+        else:
+            self.database.query(f'''
+            update playlist set name = '{newName}'
+            where name = '{oldName}' and userid = {userid}
+            ''')
+            return True
 
     # required{
     # todo
