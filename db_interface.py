@@ -243,10 +243,12 @@ class Interface:
     # required
     # todo
     # TODO this query dont look right
-    def addAlbumToPlaylist(self, playlistid, albumid, userid):
+    def addAlbumToPlaylist(self, playlistid, albumid):
         pass
         self.database.query(f'''
-        insert into PlaylistContains values({playlistid},{userid},
+        insert into PlaylistContains values({playlistid},
+        (select songid from albumcontains where albumcontains.albumid = {albumid} 
+        except (select songid from playlistcontains)), 
         (select count(playlistid) from playlistcontains 
         where playlistcontains.playlistid = {playlistid}) + 1)
         ''')
@@ -254,19 +256,24 @@ class Interface:
 
     # required
     # todo
-    def deleteSongFromPlaylist(self):
+    def deleteSongFromPlaylist(self,playlistid,songid):
         pass
         self.database.query(f'''
-
+        delete from playlistcontains where playlistcontains.songid = {songid} 
+        and playlistcontains.playlistid = {playlistid}
         ''')
 
 
     #remove intersection
     # required
     # todo
-    def deleteAlbumFromPlaylist(self):
+    def deleteAlbumFromPlaylist(self,playlistid,albumid):
         pass
-
+        self.database.query(f'''
+        delete from playlistcontains where albumcontains.albumid = {albumid} 
+        intersect (select songid from playlistcontains))
+        and playlistcontains.playlistid = {playlistid}
+        ''')
 
     # required
     def renamePlaylist(self, userid: int, old_name: str, new_name: str):
