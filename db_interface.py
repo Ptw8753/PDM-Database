@@ -240,8 +240,19 @@ class Interface:
             insert into follows(userid, followid)
             values('{userid}', '{otherid}')
             ''')
-        return True # TODO we should add a check to make sure it actaully worked.  Check if row was made in follows table
-            
+        return self.isFollowing(userid, otherid)
+    
+    # unfollow a user by giving their email
+    # return success T/F
+    def unfollowUserEmail(self, userid: int, emailtounfollow: str):
+        otherid = self.getIDfromEmail(emailtounfollow)
+        if otherid is None:
+            return False
+        query = self.database.query(f'''
+            delete from follows
+            where userid = {userid} and followid = {otherid}
+            ''')
+        return not self.isFollowing(userid, otherid)
 
     # required
     #MUST BE LOGGED IN TO RUN THIS

@@ -171,9 +171,31 @@ Enter "quit" or "q" to """
 
 
     def unfollow(self, command):
-        # TODO
-        pass
-
+        if self.login_id is None:
+            self.console.print("You must be logged in!")
+            self.console.input("Press enter to continue...")
+            return
+        if len(command) == 1:
+            self.console.print("Invalid arguments, usage: follow \[email]") 
+            self.console.input("Press enter to continue...")
+            return
+        email = command[1]
+        x = self.interface.isEmailUsed(email)
+        while not x:
+            self.console.print(f"Unable to find user: {email} ... Try again")
+            email = self.console.input("Enter email of user you want to follow: ")
+            x = self.interface.isEmailUsed(email)
+        if not self.interface.isFollowing(self.login_id, self.interface.getIDfromEmail(email)):
+            self.console.print("You are not following that user!")
+            self.console.input("Press enter to continue...")
+            return
+        success = self.interface.unfollowUserEmail(self.login_id, email)
+        if success:
+            self.console.print(f"Successfully unfollowed user {email}")
+            self.console.input("Press enter to continue...")
+        else:
+            self.console.print("Something went wrong")
+            self.console.input("Press enter to continue...")
 
     def help(self, command):
         # TODO
