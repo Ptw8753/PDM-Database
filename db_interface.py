@@ -91,8 +91,7 @@ class Interface:
         pass
         self.database.query(f'''
         select playlist.name from playlist
-        where userid = playlist.userid
-        values({userid})
+        where {userid} = playlist.userid
         ''')
 
     #helper function to reduce duplicate code
@@ -113,6 +112,7 @@ class Interface:
     def searchSongByName(self):
         pass
 
+
     # required
     # todo
     def searchSongByArtist(self):
@@ -130,8 +130,13 @@ class Interface:
 
     # required
     # todo
-    def addSongToPlaylist(self):
+    def addSongToPlaylist(self,playlistid,userid):
         pass
+        self.database.query(f'''
+        insert into PlaylistContains values({playlistid},{userid},
+        (select count(playlistid) from playlistcontains 
+        where playlistcontains.playlistid = {playlistid}) + 1)
+        ''')
 
     # required
     # todo
