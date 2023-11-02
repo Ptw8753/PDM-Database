@@ -74,6 +74,13 @@ def python_date_to_sql(python_d : datetime.date):
     python_dt = datetime.datetime(y, m, d, 0, 0)
     return python_dt.strftime(f)
 
+# Convert an SQL date to a python date
+def sql_date_to_python(sql_date):
+    f = '%Y-%m-%d'
+    print(sql_date)
+    return datetime.datetime.strptime(sql_date, f)
+
+
 
 def random_user_generator():
     """
@@ -99,8 +106,8 @@ def random_user_generator():
     EMAIL_SUFFIXES = ["@gmail.com", "@yahoo.com", "@outlook.com"]
     
     # Read in first and last names
-    with open("first-names.txt") as f: first_names = [l.strip() for l in f.readlines()]
-    with open("last-names.txt") as f: last_names = [l.strip() for l in f.readlines()]
+    with open("first-names.txt") as f: first_names = [l.strip().replace("'", "") for l in f.readlines()]
+    with open("last-names.txt") as f: last_names = [l.strip().replace("'", "") for l in f.readlines()]
     
     # Dictionary mapping initials to set of username number sequences already used
     username_num_map = dict()
@@ -147,10 +154,10 @@ def random_user_generator():
         password = "".join(password_chars)
         
         # Generate user creation date
-        creation_date = random_date(start=START_DATETIME, end=MIDDLE_DATETIME)
+        creation_date = random_datetime(start=START_DATETIME, end=MIDDLE_DATETIME).date()
         
         # Generate user last access date
-        last_access_date = random_date(start=MIDDLE_DATETIME, end=END_DATETIME)
+        last_access_date = random_datetime(start=MIDDLE_DATETIME, end=END_DATETIME)
         
         # Create user
         yield User(username, password, first_name, last_name, email, creation_date, last_access_date)
