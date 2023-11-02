@@ -56,6 +56,12 @@ class Interface:
             ''')
         return query != []
 
+    def isPlaylistNameUsed(self, name: str):
+        query = self.database.query(f'''
+            select name from playlist where name = '{name}'
+            ''')
+        return query != []
+
     # converts email into userid
     # returns false if errors, true if success
     def getIDfromEmail(self, email: str):
@@ -263,63 +269,70 @@ class Interface:
 
 
     # required
-    def renamePlaylist(self, userid: int, oldName: str, newName: str):
+    def renamePlaylist(self, userid: int, old_name: str, new_name: str):
         query = self.database.query(f'''
-        select name from playlist where name = '{oldName}' and userid = {userid}
+        select name from playlist where name = '{old_name}' and userid = {user_id}
         ''')
         if query == []:
             return False
         else:
             self.database.query(f'''
-            update playlist set name = '{newName}'
-            where name = '{oldName}' and userid = {userid}
+            update playlist set name = '{new_name}'
+            where name = '{old_name}' and userid = {user_id}
             ''')
             return True
 
     # required
-    def deletePlaylist(self, userid, name):
-        playlistid = self.getPlaylistid(name, userid)
+    def deletePlaylist(self, user_id, name):
+        playlist_id = self.getPlaylistid(name, user_id)
 
-        if playlistid == None:
+        if playlist_id == None:
             return False
         
-        self.clearPlaylist(playlistid)
+        self.clearPlaylist(playlist_id)
         
         self.database.query(f'''
         delete from playlist where 
-        playlist.playlistid = {playlistid} and
-        playlist.userid = {userid}
+        playlist.playlistid = {playlist_id} and
+        playlist.userid = {user_id}
         ''')
 
         return True
 
 
-    def clearPlaylist(self, playlistid):        
+    def clearPlaylist(self, playlist_id):
         self.database.query(f'''
         delete from playlistcontains 
-        where playlistcontains.playlistid = {playlistid}
+        where playlistcontains.playlistid = {playlist_id}
         ''')
 
+
+    def addPlayedSong(self, user_id: int, song_id: int):
+        self.database.query(f'''
+                insert into listensto values({user_id}, {song_id},
+                '{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+                ''')
 
     # required
-    def playSong(self, song_name, userid):
-        songid = self.getSongId(song_name, userid)
+    def playSong(self, song_name, user_id):
+        song_id = self.getSongId(song_name, user_id)
 
-        if songid == None:
+        if song_id == None:
             return False
-
-        self.database.query(f'''
-        insert into listensto values({userid}, {songid},
-        '{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
-        ''')
-
+        self.addPlayedSong(user_id, song_id)
         return True
 
 
     # required
     # todo
-    def playPlaylist(self):
-        pass
+    def playPlaylist(self, user_id:int, playlist_name:str):
+        #get songids for every song in the playlist
+        songs = self.database.query(f'''
+            select songid from playlistcontains
+            join playlist on playlistcontains.playlistid = playlist.playlistid
+            where playlist.name = '{playlist_name}' ''')
+        for song in songs:
+            self.addPlayedSong(user_id, song[0])
 
     
     # returns true if user w/ id is following user with otherid
