@@ -124,31 +124,49 @@ class Interface:
         print(song)
         return song
         #populate song here
+
+    def search(self, attribute: str, keyword: str, sort: str, sort_type: str):
+        songs = list()
+        result = self.database.query(f'''
+        select song.title, artist.name, album.name, genre.name, song.length, count(listensto.songid) as playcount
+        from song
+        join songby on song.songid = songby.songid
+        join artist on songby.artistid = artist.artistid
+        join albumcontains on song.songid = albumcontains.songid
+        join album on albumcontains.albumid = album.albumid
+        join songgenre on song.songid = songgenre.songid
+        join genre on songgenre.genreid = genre.genreid
+        left join listensto on song.songid = listensto.songid
+        where {attribute} like '%{keyword}%'
+        group by song.title, artist.name, album.name, genre.name, song.length
+        order by {sort} {sort_type}
+        ''')
+        if result is None:
+            return songs
+        else:
+            pass # TODO parse result into list of songs
+
     # song searches
     # each entry must list song name, artist name, album, length, and listen count
     # required
     # todo
-    def searchSongByTitle(self, title:str):
-        where = f'''
-        where song.title = '{title}'
-        '''
-        self.executeSongQueryWithWhereClause(where)
-
+    def searchSongByTitle(self, keyword: str, sort="song.title", sort_type="ASC"):
+        return self.search("song.title", keyword)
+    
+    # required
+    # todo
+    def searchSongByArtist(self, keyword: str, sort="song.title", sort_type="ASC"):
+        return self.search("artist.name", keyword)
+    
+    # required
+    # todo
+    def searchSongByAlbum(self, keyword: str, sort="song.title", sort_type="ASC"):
+        return self.search("album.name", keyword)
 
     # required
     # todo
-    def searchSongByArtist(self):
-        pass
-
-    # required
-    # todo
-    def searchSongByAlbum(self):
-        pass
-
-    # required
-    # todo
-    def searchSongByGenre(self):
-        pass
+    def searchSongByGenre(self, keyword: str, sort="song.title", sort_type="ASC"):
+        return self.search("genre.name", keyword)
 
     # required
     # todo
