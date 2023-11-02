@@ -98,10 +98,10 @@ Enter "quit" or "q" to """
             command = input_str.split()
             if (self.screen == "main"):
                 if (command[0] == "login"):
-                    self.login()
+                    self.login(command)
 
                 elif (command[0] == "signup"):
-                    self.signup()
+                    self.signup(command)
                 
                 elif (command[0] == "collections"):
                     self.screen = "collections"
