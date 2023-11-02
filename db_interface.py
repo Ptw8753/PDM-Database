@@ -36,6 +36,7 @@ class Interface:
             ''')
 
         return userId
+    
 
     # checks if a username is in the users table.
     # returns true if the username is used.
@@ -44,6 +45,7 @@ class Interface:
             select userid from users where username = '{username}'                                  
             ''')
         return query != []
+    
 
     # create a row of user table
     # returns false if an error
@@ -59,6 +61,7 @@ class Interface:
             return True
         else:
             return False
+        
 
     # required
     def createPlaylist(self, userid: str, name: str):
@@ -67,19 +70,21 @@ class Interface:
         values({self.generateIdForTable("playlist")}, {userid}, '{name}', '{datetime.now().strftime("%Y-%m-%d")}')
         ''')
 
+
     #lists the name, number of songs, and total duration
     # required
     # todo
     #lists every playlist a user has created
     # (number songs and total aren't stored explicitly
     # probably need helper function/query
-    def listAllCollections(self, userid: str):
-        pass
-        self.database.query(f'''
+    def listAllCollections(self, userid: int):
+        collections = self.database.query(f'''
         select playlist.name from playlist
-        where userid = playlist.userid
-        values({userid})
+        where playlist.userid = {userid}
         ''')
+
+        return collections
+
 
     #helper function to reduce duplicate code
     def executeSongQueryWithWhereClause(self, where: str) -> str:
@@ -104,6 +109,8 @@ class Interface:
         print(song)
         return song
         #populate song here
+
+
     # song searches
     # each entry must list song name, artist name, album, length, and listen count
     # required
@@ -120,15 +127,18 @@ class Interface:
     def searchSongByArtist(self):
         pass
 
+
     # required
     # todo
     def searchSongByAlbum(self):
         pass
 
+
     # required
     # todo
     def searchSongByGenre(self):
         pass
+
 
     # required
     # todo
@@ -140,6 +150,7 @@ class Interface:
         where playlistcontains.playlistid = {playlistid}) + 1)
         ''')
 
+
     # required
     # todo
     def addAlbumToPlaylist(self,playlistid,albumid):
@@ -150,6 +161,7 @@ class Interface:
         where playlistcontains.playlistid = {playlistid}) + 1)
         ''')
 
+
     # required
     # todo
     def deleteSongFromPlaylist(self):
@@ -158,21 +170,25 @@ class Interface:
 
         ''')
 
+
     #remove intersection
     # required
     # todo
     def deleteAlbumFromPlaylist(self):
         pass
 
+
     # required
     # todo
     def renamePlaylist(self):
         pass
 
+
     # required
     # todo
     def deletePlaylist(self):
         pass
+
 
     # required
     def playSong(self, song_name, userid):
@@ -199,6 +215,7 @@ class Interface:
     def playPlaylist(self):
         pass
 
+
     # required
     #MUST BE LOGGED IN TO RUN THIS
     # todo
@@ -209,12 +226,14 @@ class Interface:
         """)[0][0]
         print(userid)
 
+
     # required
     # todo
     def unfollowUser(self):
         pass
 
-#get next id functions create a new id greater than the max found in the database
+
+    #get next id functions create a new id greater than the max found in the database
     def generateIdForTable(self, tableName: str) -> str:
         newId = rand.randint(0, 2147483647)
         while True:
