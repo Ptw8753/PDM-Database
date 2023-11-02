@@ -106,8 +106,8 @@ def random_user_generator():
     EMAIL_SUFFIXES = ["@gmail.com", "@yahoo.com", "@outlook.com"]
     
     # Read in first and last names
-    with open("first-names.txt") as f: first_names = [l.strip() for l in f.readlines()]
-    with open("last-names.txt") as f: last_names = [l.strip() for l in f.readlines()]
+    with open("first-names.txt") as f: first_names = [l.strip().replace("'", "") for l in f.readlines()]
+    with open("last-names.txt") as f: last_names = [l.strip().replace("'", "") for l in f.readlines()]
     
     # Dictionary mapping initials to set of username number sequences already used
     username_num_map = dict()

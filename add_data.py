@@ -20,7 +20,7 @@ playlist_buzzwords = ["Awesome", "Loud", "Beats", "Music", \
     "Mediocre", "Warm", "Coolest", "Noisy"]
 
 if __name__ == "__main__":
-    step = 1
+    step = 2
     
     # Sizes
     min_n_album_songs = 1
