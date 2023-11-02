@@ -112,7 +112,6 @@ class Interface:
 
     #lists the name, number of songs, and total duration
     # required
-    # todo
     #lists every playlist a user has created
     # (number songs and total aren't stored explicitly
     # probably need helper function/query
@@ -221,7 +220,6 @@ class Interface:
 
 
     # required
-    # todo
     def addSongToPlaylist(self, playlistid, song_name):        
         songid = self.getSongId(song_name)
         if songid == None:
