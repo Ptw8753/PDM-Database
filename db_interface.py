@@ -73,6 +73,8 @@ class Interface:
             where userid = '{userId}'
             ''')
 
+        return userId
+
     # checks if a username is in the users table.
     # returns true if the username is used.
     def isUsernameUsed(self, username: str):
@@ -198,7 +200,6 @@ class Interface:
         else:
             return False
         
-
         self.database.query(f'''
         insert into listensto values({userid}, {songid},
         '{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
