@@ -158,8 +158,17 @@ class Interface:
 
     # required
     # todo
-    def addAlbumToPlaylist(self):
+    def addAlbumToPlaylist(self,playlistid,albumid):
         pass
+        self.database.query(f'''
+        while 0 < (select count(songid) from albumcontains where {albumid} = albumcontains.albumid) 
+        begin
+            insert into PlaylistContains values({playlistid},(select songid from albumcontains 
+            where {albumid} = albumcontains.albumid),
+            (select count(playlistid) from playlistcontains 
+            where playlistcontains.playlistid = {playlistid}) + 1)
+        end
+        ''')
 
     # required
     # todo
