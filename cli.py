@@ -11,8 +11,9 @@ class Cli:
         self.interface = interface
         self.console = Console()
         self.screen = "main"
-        self.loginId = None
+        self.login_id = None
 
+        self.console.clear()
         self.render_heading()
         self.input_loop()
 
@@ -71,6 +72,14 @@ Enter "quit" or "q" to """
         if self.screen == "search":
             self.console.print()
             self.console.print("Search in:")
+
+    
+    def stringify(self, lst):
+        str = ""
+        for word in lst:
+            str += (" " + word)
+
+        return str[1:]
         
 
     def login(self, command):
@@ -78,9 +87,15 @@ Enter "quit" or "q" to """
             self.console.print("Invalid arguments, usage: login \[username] \[password]") 
             self.console.input("Press enter to continue...")
         else:
-            self.loginId = self.interface.loginUser(command[1], command[2])
-            self.console.input("Press enter to continue...")
-
+            user = self.interface.loginUser(command[1], command[2])
+            if user == self.login_id or user == None:
+                self.console.print("Invalid username or password.")
+                self.console.input("Press enter to continue...")
+            else:
+                self.login_id = user
+                self.console.print("Successfully logged in as user " + command[1])
+                self.console.input("Press enter to continue...")
+                
 
     def signup(self, command):
         # TODO: make new account here
@@ -88,11 +103,18 @@ Enter "quit" or "q" to """
 
 
     def listen(self, command):
-        if len(command) != 2:
-            self.console.print("Invalid arguments,\nusage: listen \[songname]\nlisten \[albumname]")
+        title = self.stringify(command[1:])
+
+        if len(command) < 2:
+            self.console.print("Invalid arguments, usage: \nlisten \[songname]\nlisten \[albumname]")
             self.console.input("Press enter to continue...")
         else:
-            pass
+            result = self.interface.playSong(title, self.login_id)
+            if result == False:
+                self.console.print("Song does not exist.")
+            else:
+                self.console.print("Now playing: " + title)
+            self.console.input("Press enter to continue...")
 
 
     def follow(self, command):

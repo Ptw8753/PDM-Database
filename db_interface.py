@@ -57,13 +57,12 @@ class Interface:
     #checks the username and password, on successful login, update accessDateTime
     #required
     def loginUser(self, username: str, password: str):
+        userId = None
         query = self.database.query(f'''
             select userid from users
             where (username = '{username}' and password = '{password}')
             ''')
-        if(query == []):
-            print("invalid username or password!")
-        else:
+        if(query != []):
             userId = query[0][0]
             #this query works when pasted into the datagrip console, but not here for some reason
             # could be some sort of insert/update permission issue
@@ -72,7 +71,7 @@ class Interface:
             set lastaccessdate = '{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
             where userid = '{userId}'
             ''')
-            return userId
+        return userId
 
     # required
     def createPlaylist(self, userid: str, name: str):
@@ -133,7 +132,7 @@ class Interface:
     def addSongToPlaylist(self,playlistid,userid):
         pass
         self.database.query(f'''
-        insert into PlaylistContains values({playlistid},{userid},
+        insert into playlistcontains values({playlistid},{userid},
         (select count(playlistid) from playlistcontains 
         where playlistcontains.playlistid = {playlistid}) + 1)
         ''')
@@ -165,9 +164,25 @@ class Interface:
         pass
 
     # required
-    # todo
-    def playSong(self):
-        pass
+    def playSong(self, song_name, userid):
+        songid = self.database.query(f'''
+        select songid from song 
+        where song.title = '{song_name}'
+        ''')
+
+        if(songid != []):
+            songid = songid[0][0]
+        else:
+            return False
+        
+
+        self.database.query(f'''
+        insert into listensto values({userid}, {songid},
+        '{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+        ''')
+
+        return True
+
 
     # required
     # todo
