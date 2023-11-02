@@ -283,6 +283,8 @@ class Interface:
         if playlistid == None:
             return False
         
+        self.clearPlaylist(userid, playlistid)
+        
         self.database.query(f'''
         delete from playlist where 
         playlist.playlistid = {playlistid} and
@@ -290,6 +292,13 @@ class Interface:
         ''')
 
         return True
+
+
+    def clearPlaylist(self, playlistid):        
+        self.database.query(f'''
+        delete from playlistcontains 
+        where playlistcontains.playlistid = {playlistid}
+        ''')
 
 
     # required
