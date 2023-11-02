@@ -125,6 +125,7 @@ class Interface:
         return collections
 
 
+    # I DONT THINK THIS ONE WILL WORK, USE search() BELOW 
     #helper function to reduce duplicate code
     def executeSongQueryWithWhereClause(self, where: str) -> str:
         query = f'''
