@@ -34,6 +34,7 @@ class Interface:
             set lastaccessdate = '{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
             where userid = '{userId}'
             ''')
+            return userId
 
         return userId
     
@@ -46,6 +47,44 @@ class Interface:
             ''')
         return query != []
     
+
+    # checks if there is a user with given email
+    # used for following users
+    def isEmailUsed(self, email: str):
+        query = self.database.query(f'''
+            select userid from users where email = '{email}'
+            ''')
+        return query != []
+
+    # converts email into userid
+    # returns false if errors, true if success
+    def getIDfromEmail(self, email: str):
+        if not self.isEmailUsed(email):
+            return False
+        query = self.database.query(f'''
+            select userid from users where email = '{email}'
+            ''')
+        if query is not None:
+            return query[0][0]
+
+    # checks if there is a user with given email
+    # used for following users
+    def isEmailUsed(self, email: str):
+        query = self.database.query(f'''
+            select userid from users where email = '{email}'
+            ''')
+        return query != []
+
+    # converts email into userid
+    # returns false if errors, true if success
+    def getIDfromEmail(self, email: str):
+        if not self.isEmailUsed(email):
+            return False
+        query = self.database.query(f'''
+            select userid from users where email = '{email}'
+            ''')
+        if query is not None:
+            return query[0][0]
 
     # create a row of user table
     # returns false if an error
@@ -215,6 +254,41 @@ class Interface:
     def playPlaylist(self):
         pass
 
+
+    
+    # returns true if user w/ id is following user with otherid
+    def isFollowing(self, id: int, otherid: int):
+        query = self.database.query(f'''
+            select userid from follows where userid = {id} and followid = {otherid}
+            ''')
+        if query == []:
+            return False
+        else:
+            return True
+
+    # follow another user by giving their email
+    # return success T/F
+    def followUserEmail(self, userid: int, emailtofollow: str):
+        otherid = self.getIDfromEmail(emailtofollow)
+        if otherid is None:
+            return False
+        query = self.database.query(f'''
+            insert into follows(userid, followid)
+            values('{userid}', '{otherid}')
+            ''')
+        return self.isFollowing(userid, otherid)
+    
+    # unfollow a user by giving their email
+    # return success T/F
+    def unfollowUserEmail(self, userid: int, emailtounfollow: str):
+        otherid = self.getIDfromEmail(emailtounfollow)
+        if otherid is None:
+            return False
+        query = self.database.query(f'''
+            delete from follows
+            where userid = {userid} and followid = {otherid}
+            ''')
+        return not self.isFollowing(userid, otherid)
 
     # required
     #MUST BE LOGGED IN TO RUN THIS
