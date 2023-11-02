@@ -181,7 +181,7 @@ class Interface:
 
     # required
     # todo
-    def addSongToPlaylist(self,playlistid,songid):
+    def addSongToPlaylist(self, playlistid, songid):
         pass
         self.database.query(f'''
         insert into PlaylistContains values({playlistid},{songid},
@@ -192,7 +192,7 @@ class Interface:
 
     # required
     # todo
-    def addAlbumToPlaylist(self,playlistid,albumid):
+    def addAlbumToPlaylist(self, playlistid, albumid, userid):
         pass
         self.database.query(f'''
         insert into PlaylistContains values({playlistid},{userid},
@@ -253,7 +253,6 @@ class Interface:
     # todo
     def playPlaylist(self):
         pass
-
 
     
     # returns true if user w/ id is following user with otherid
