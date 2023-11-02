@@ -35,7 +35,7 @@ class Cli:
             column1 ="""[bright_red]
 * create \[name]  
 * +album \[collectionname]  
-* +song \[cllectionname]  
+* +song \[collectionname]  
 * editname \[name] \[newname]  
 """
 
@@ -67,19 +67,18 @@ Enter "quit" or "q" to """
         else:
             end = """exit."""
 
-        if self.screen == "search":
-            self.console.print("Search in:")
-
         self.console.print(Markdown(header + end))
-        self.console.print()
-
+        if self.screen == "search":
+            self.console.print()
+            self.console.print("Search in:")
+        
 
     def login(self, command):
         if len(command) != 3:
             self.console.print("Invalid arguments, usage: login \[username] \[password]") 
             self.console.input("Press enter to continue...")
         else:
-            self.interface.loginUser(command[1], command[2])
+            self.loginId = self.interface.loginUser(command[1], command[2])
             self.console.input("Press enter to continue...")
 
 
@@ -106,6 +105,90 @@ Enter "quit" or "q" to """
         else:
             self.console.print("Something went wrong! Account was not created :(")
 
+    def listen(self, command):
+        if len(command) != 2:
+            self.console.print("Invalid arguments,\nusage: listen \[songname]\nlisten \[albumname]")
+            self.console.input("Press enter to continue...")
+        else:
+            pass
+
+
+    def follow(self, command):
+        # TODO
+        pass
+
+
+    def unfollow(self, command):
+        # TODO
+        pass
+
+
+    def help(self, command):
+        # TODO
+        # maybe we do this, not needed
+        pass
+
+
+    def create(self, command):
+        # TODO
+        pass
+
+
+    def delete(self, command):
+        # TODO
+        pass
+
+
+    def add_album(self, command):
+        # TODO 
+        pass
+
+
+    def delete_album(self, command):
+        # TODO
+        pass
+
+
+    def add_song(self, command):
+        # TODO
+        pass
+
+
+    def delete_song(self, command):
+        # TODO
+        pass
+
+
+    def edit_name(self, command):
+        # TODO
+        pass
+
+
+    def listen_collection(self, command):
+        # TODO
+        pass
+
+
+    def search_songs(self, command):
+        # TODO
+        pass
+
+
+    def search_albums(self, command):
+        # TODO
+        pass
+
+
+    def search_artists(self, command):
+        # TODO
+        pass
+
+
+    def search_genres(self, command):
+        # TODO
+        pass
+
+
     def input_loop(self):
         input_str = "null"
 
@@ -114,24 +197,74 @@ Enter "quit" or "q" to """
             input_str = self.console.input("> ")
             
             command = input_str.split()
+            if (not command):
+                self.console.clear()
+                self.render_heading()
+                continue
+
             if (self.screen == "main"):
                 if (command[0] == "login"):
-                    self.login()
+                    self.login(command)
 
                 elif (command[0] == "signup"):
-                    self.signup()
+                    self.signup(command)
                 
                 elif (command[0] == "collections"):
                     self.screen = "collections"
 
                 elif (command[0] == "search"):
                     self.screen = "search"
+
+                elif (command[0] == "listen"):
+                    self.listen(command)
+
+                elif (command[0] == "follow"):
+                    self.follow(command)
+                
+                elif (command[0] == "unfollow"):
+                    self.unfollow(command)
+
+                elif (command[0] == "help"):
+                    self.console.print("Not implemented.")
+                    self.console.input("Press enter to continue...")
             
             elif (self.screen == "collections"):
-                pass
+                if (command[0] == "create"):
+                    self.create(command)
+                
+                elif (command[0] == "delete"):
+                    self.delete(command)
+
+                elif (command[0] == "+album"):
+                    self.add_album(command)
+
+                elif (command[0] == "-album"):
+                    self.delete_album(command)
+
+                elif (command[0] == "+song"):
+                    self.add_song(command)
+
+                elif (command[0] == "-song"):
+                    self.delete_song(command)
+
+                elif (command[0] == "editname"):
+                    self.edit_name(command)
+
+                elif (command[0] == "listen"):
+                    self.listen_collection(command)
 
             elif (self.screen == "search"):
-                pass
+                if (command[0] == "songs"):
+                    self.search_songs(command)
+                
+                elif (command[0] == "albums"):
+                    self.search_albums(command)
+
+                elif (command[0] == "artists"):
+                    self.search_artists(command)
+
+                elif (command[0] == "genres"):
+                    self.search_genres(command)
 
             if (command[0]) in ["quit", "q"]:
                 if self.screen in ["collections", "search"]:
