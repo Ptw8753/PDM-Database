@@ -57,53 +57,58 @@ class Interface:
         ''')
 
     #helper function to reduce duplicate code
-    def executeSongQueryWithWhereClause(self, where: str) -> str:
+    def executeSongQueryWithWhereClause(self, where: str) -> list[Song]:
         query = f'''
-        select song.title, artist.name, album.name, song.length, count(song.songid)
+        select song.title, artist.name, album.name, genre.name, song.length, count(song.songid)
         from song
         join songby on song.songid = songby.songid
         join artist on songby.artistid = artist.artistid
         join albumcontains on song.songid = albumcontains.songid
         join album on albumcontains.albumid = album.albumid
+        join songgenre on song.songid = songgenre.songid
+        join genre on songgenre.genreid = genre.genreid
         left join listensto on song.songid = listensto.songid
         {where}
-        group by song.title, artist.name, album.name, song.length
+        group by song.title, artist.name, album.name, song.length, genre.name
         '''
 
         songData = self.database.query(query)
-        albums = []
+        songs = {}
         for song in songData:
-            albums.append(song[2])
+            if song[0] in songs.keys():
+                if song[2] not in songs[song[0]].albumNames:
+                    songs[song[0]].albumNames.append(song[2])
+                if song[3] not in songs[song[0]].genres:
+                    songs[song[0]].genres.append(song[3])
+            else:
+                songs[song[0]] = Song(title=song[0], artistName=song[1], albumNames = [song[2]], genres=[song[3]], length=song[4], listenCount=song[5])
 
-        song = Song(title=songData[0][0], artistName=songData[0][1], albumNames = albums, length=songData[0][3], listenCount=songData[0][4])
-        print(song)
-        return song
+        test = list(songs.values())
+        return test
         #populate song here
     # song searches
     # each entry must list song name, artist name, album, length, and listen count
     # required
-    # todo
-    def searchSongByTitle(self, title:str):
-        where = f'''
-        where song.title = '{title}'
-        '''
-        self.executeSongQueryWithWhereClause(where)
-
+    def searchSongByTitle(self, title:str) -> list[Song]:
+        where = f'''where song.title = '{title}' '''
+        return self.executeSongQueryWithWhereClause(where)
 
     # required
-    # todo
-    def searchSongByArtist(self):
-        pass
+    def searchSongByArtist(self, artistName: str) -> list[Song]:
+        where = f'''where artist.name = '{artistName}' '''
+        return self.executeSongQueryWithWhereClause(where)
 
     # required
-    # todo
-    def searchSongByAlbum(self):
-        pass
+    # todo should this return ALL albums that it is in or just the one we query?
+    def searchSongByAlbum(self, albumName: str) -> list[Song]:
+        where = f'''where album.name = '{albumName}' '''
+        return self.executeSongQueryWithWhereClause(where)
 
     # required
-    # todo
-    def searchSongByGenre(self):
-        pass
+    # todo should this return ALL genres that it is or just the one we query?
+    def searchSongByGenre(self, genre: str) -> list[Song]:
+        where = f'''where genre.name = '{genre}' '''
+        return self.executeSongQueryWithWhereClause(where)
 
     # required
     # todo
