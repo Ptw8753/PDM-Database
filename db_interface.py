@@ -73,6 +73,7 @@ class Interface:
             set lastaccessdate = '{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
             where userid = '{userId}'
             ''')
+            return userId
 
     # checks if a username is in the users table.
     # returns true if the username is used.
@@ -81,6 +82,25 @@ class Interface:
             select userid from users where username = '{username}'                                  
             ''')
         return query != []
+
+    # checks if there is a user with given email
+    # used for following users
+    def isEmailUsed(self, email: str):
+        query = self.database.query(f'''
+            select userid from users where email = '{email}'
+            ''')
+        return query != []
+
+    # converts email into userid
+    # returns false if errors, true if success
+    def getIDfromEmail(self, email: str):
+        if not self.isEmailUsed(email):
+            return False
+        query = self.database.query(f'''
+            select userid from users where email = '{email}'
+            ''')
+        if query is not None:
+            return query[0][0]
 
     # create a row of user table
     # returns false if an error
@@ -200,6 +220,30 @@ class Interface:
     # todo
     def playPlaylist(self):
         pass
+
+    
+    # returns true if user w/ id is following user with otherid
+    def isFollowing(self, id: int, otherid: int):
+        query = self.database.query(f'''
+            select userid from follows where userid = {id} and followid = {otherid}
+            ''')
+        if query == []:
+            return False
+        else:
+            return True
+
+    # follow another user by giving their email
+    # return success T/F
+    def followUserEmail(self, userid: int, emailtofollow: str):
+        otherid = self.getIDfromEmail(emailtofollow)
+        if otherid is None:
+            return False
+        query = self.database.query(f'''
+            insert into follows(userid, followid)
+            values('{userid}', '{otherid}')
+            ''')
+        return True # TODO we should add a check to make sure it actaully worked.  Check if row was made in follows table
+            
 
     # required
     #MUST BE LOGGED IN TO RUN THIS

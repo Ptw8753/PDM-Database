@@ -12,10 +12,13 @@ class Cli:
         self.console = Console()
         self.screen = "main"
         self.loginId = None
+        self.username = None
 
         self.render_heading()
         self.input_loop()
 
+    def isLoggedIn(self):
+        return self.username is not None
 
     def print_options(self):
         if self.screen == "main":
@@ -79,8 +82,9 @@ Enter "quit" or "q" to """
             self.console.input("Press enter to continue...")
         else:
             self.loginId = self.interface.loginUser(command[1], command[2])
+            self.username = command[1]
             self.console.input("Press enter to continue...")
-
+        
 
     def signup(self, command):
         username = self.console.input("Username: ")
@@ -99,6 +103,11 @@ Enter "quit" or "q" to """
         fname = self.console.input("First Name: ")
         lname = self.console.input("Last Name: ")
         email = self.console.input("Email: ")
+        z = self.interface.isEmailUsed(email)
+        while (z):
+            self.console.print("That email is already associated with an account!")
+            email = self.console.input("Email: ")
+            z = self.interface.isEmailUsed(email)
         success = self.interface.createUser(username, password, fname, lname, email)
         if success:
             self.console.print(f"Account successfully created!\nWelcome {fname} {lname}")
@@ -116,8 +125,32 @@ Enter "quit" or "q" to """
 
 
     def follow(self, command):
-        # TODO
-        pass
+        if self.loginId is None:
+            self.console.print("You must be logged in!")
+            self.console.input("Press enter to continue...")
+            return
+        if len(command) == 1:
+            self.console.print("Invalid arguments, usage: follow \[email]") 
+            self.console.input("Press enter to continue...")
+            return
+        email = command[1]
+        x = self.interface.isEmailUsed(email)
+        while not x:
+            self.console.print(f"Unable to find user: {email} ... Try again")
+            email = self.console.input("Enter email of user you want to follow: ")
+            x = self.interface.isEmailUsed(email)
+        
+        if self.interface.isFollowing(self.loginId, self.interface.getIDfromEmail(email)):
+            self.console.print("You are already following that user!")
+            self.console.input("Press enter to continue...")
+            return
+        success = self.interface.followUserEmail(self.loginId, email)
+        if success:
+            self.console.print(f"Successfully followed user {email}")
+            self.console.input("Press enter to continue...")
+        else:
+            self.console.print("Something went wrong")
+            self.console.input("Press enter to continue...")
 
 
     def unfollow(self, command):
