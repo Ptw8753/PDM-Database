@@ -72,6 +72,7 @@ class Interface:
             set lastaccessdate = '{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
             where userid = '{userId}'
             ''')
+            return userId
 
     # required
     def createPlaylist(self, userid: str, name: str):

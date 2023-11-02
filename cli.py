@@ -67,10 +67,9 @@ Enter "quit" or "q" to """
         else:
             end = """exit."""
 
+        self.console.print(Markdown(header + end))
         if self.screen == "search":
             self.console.print("Search in:")
-
-        self.console.print(Markdown(header + end))
         self.console.print()
 
 
@@ -79,12 +78,93 @@ Enter "quit" or "q" to """
             self.console.print("Invalid arguments, usage: login \[username] \[password]") 
             self.console.input("Press enter to continue...")
         else:
-            self.interface.loginUser(command[1], command[2])
+            self.loginId = self.interface.loginUser(command[1], command[2])
             self.console.input("Press enter to continue...")
 
 
     def signup(self, command):
         # TODO: make new account here
+        pass
+
+
+    def listen(self, command):
+        # TODO
+        pass
+
+
+    def follow(self, command):
+        # TODO
+        pass
+
+
+    def unfollow(self, command):
+        # TODO
+        pass
+
+
+    def help(self, command):
+        # TODO
+        # maybe we do this, not needed
+        pass
+
+
+    def create(self, command):
+        # TODO
+        pass
+
+
+    def delete(self, command):
+        # TODO
+        pass
+
+
+    def add_album(self, command):
+        # TODO 
+        pass
+
+
+    def delete_album(self, command):
+        # TODO
+        pass
+
+
+    def add_song(self, command):
+        # TODO
+        pass
+
+
+    def delete_song(self, command):
+        # TODO
+        pass
+
+
+    def editname(self, command):
+        # TODO
+        pass
+
+
+    def listen_collection(self, command):
+        # TODO
+        pass
+
+
+    def search_songs(self, command):
+        # TODO
+        pass
+
+
+    def search_albums(self, command):
+        # TODO
+        pass
+
+
+    def search_artists(self, command):
+        # TODO
+        pass
+
+
+    def search_genres(self, command):
+        # TODO
         pass
 
 
@@ -96,6 +176,11 @@ Enter "quit" or "q" to """
             input_str = self.console.input("> ")
             
             command = input_str.split()
+            if (not command):
+                self.console.clear()
+                self.render_heading()
+                continue
+
             if (self.screen == "main"):
                 if (command[0] == "login"):
                     self.login(command)
