@@ -235,16 +235,17 @@ class Interface:
 
     # required
     def renamePlaylist(self, userid: int, oldName: str, newName: str):
-        #first, check that there is one with that name from that user
-        if self.database.query(f'''
+        query = self.database.query(f'''
         select name from playlist where name = '{oldName}' and userid = {userid}
-        ''') == []:
-            print("there is no playlist named "+oldName+"!")
+        ''')
+        if query == []:
+            return False
         else:
             self.database.query(f'''
             update playlist set name = '{newName}'
             where name = '{oldName}' and userid = {userid}
             ''')
+            return True
 
     # required
     # todo
