@@ -289,24 +289,41 @@ Enter "quit" or "q" to """
         pass
 
 
-    def search_songs(self, command):
-        # TODO
-        pass
+    # search command goes as follows
+    # seach <subject> <keyword> optional=<order by>
 
+    def search_songs(self, command):
+        # search songs <keyword> optional<sort> optional<ASC/DESC>
+        songs = list()
+        if len(command) == 5:
+            pass
+        pass
 
     def search_albums(self, command):
-        # TODO
+        # search albums <keyword> optional<sort> optional<ASC/DESC>
+        songs = list()
+        if len(command) == 5:
+            pass
         pass
+
 
 
     def search_artists(self, command):
-        # TODO
+        # search artists <keyword> optional<sort> optional<ASC/DESC>
+        songs = list()
+        if len(command) == 5:
+            pass
         pass
+
 
 
     def search_genres(self, command):
-        # TODO
+        # search genres <keyword> optional<sort> optional<ASC/DESC>
+        songs = list()
+        if len(command) == 5:
+            pass
         pass
+
 
 
     def input_loop(self):
