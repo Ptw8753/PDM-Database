@@ -1,6 +1,7 @@
 import random
 import sys
 
+from datetime import datetime
 from database import Database
 from data_classes import *
 import random as rand
@@ -72,6 +73,29 @@ class Interface:
             set lastaccessdate = '{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
             where userid = '{userId}'
             ''')
+
+    # checks if a username is in the users table.
+    # returns true if the username is used.
+    def isUsernameUsed(self, username: str):
+        query = self.database.query(f'''
+            select userid from users where username = '{username}'                                  
+            ''')
+        return query != []
+
+    # create a row of user table
+    # returns false if an error happened
+    def createUser(self, username, password, firstname, lastname, email):
+        id = self.generateIdForTable("users")
+        d = datetime.now()
+        creation_date = f"{d.year}-{d.month}-{d.day}"
+        query = self.database.query(f'''
+            insert into users(userid, username, password, firstname, lastname, email, creationdate, lastaccessdate)
+            values({id}, '{username}', '{password}', '{firstname}', '{lastname}', '{email}', '{creation_date}', '{d}')                         
+            ''')
+        if query is None:
+            return False
+        else:
+            return True
 
     # required
     def createPlaylist(self, userid: str, name: str):
