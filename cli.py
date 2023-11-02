@@ -55,7 +55,12 @@ class Cli:
 """
             column2 =""""""
 
-        self.console.print(Panel(Columns([column1, column2]), title="Command List"))
+        if self.screen != "collections":
+            self.console.print(Panel(Columns([column1, column2]), title="Command List"))
+        else:
+            self.console.print(Columns(
+                [Panel(Columns([column1, column2]), title="Command List"), 
+                 Panel(Columns(self.render_collections()), title="Collections")]))
 
     
     def render_heading(self):
@@ -79,6 +84,36 @@ Enter "quit" or "q" to """
             str += (" " + word)
 
         return str[1:]
+    
+
+    def render_collections(self):
+        columns = []
+        column = "[bright_red]"
+        line_start = "* "
+
+        if self.login_id == None:
+            return ["Log in to see collections."]
+        else:
+            collections = self.interface.listAllCollections(self.login_id)
+
+            if collections == []:
+                return ["You have no collections."]
+
+        i = 0
+        for collection in collections:
+            column += "\n" + line_start + collection[0] + "  "
+            i += 1
+
+            if i % 4 == 0:
+                column += "\n"
+                columns.append(column)
+                column = "[bright_red]"
+
+            elif i == len(collections):
+                columns += "\n"
+
+        columns.append(column)
+        return columns
         
 
     def login(self, command):
@@ -204,9 +239,20 @@ Enter "quit" or "q" to """
 
 
     def create(self, command):
-        # TODO
-        pass
+        name = self.stringify(command[1:])
 
+        if (self.login_id == None):
+            self.console.print("Log in to create a playlist.")
+            self.console.input("Press enter to continue...")
+            return
+
+        if len(command) < 2:
+            self.console.print("Invalid arguments, usage: create \[name]")
+            self.console.input("Press enter to continue...")
+        else:
+            self.interface.createPlaylist(self.login_id, name)
+            self.console.print(f"Successfully created {name}.")
+            self.console.input("Press enter to continue...")
 
     def delete(self, command):
         # TODO
