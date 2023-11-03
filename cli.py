@@ -341,16 +341,48 @@ Enter "quit" or "q" to """
     # search command goes as follows
     # seach <subject> <keyword> optional=<order by>
 
-    def search_songs(self, command):
-        # search songs <keyword> optional<sort> optional<ASC/DESC>
-        songs = list()
-        if len(command) == 5:
-            pass
-        pass
+    # helper function to print list of songs
+    # TODO make it print seciton at a time maybe
+    def nice_print(self, songList, keyword):
+        self.console.print(f"Search Complete!\n{len(songList)} songs found with keyword: '{keyword}'")
+        self.console.input("Press enter to view results...")
+        
+        n = 0
+        for song in songList:
+            n += 1
+            artists = ""
+            for artist in song.artistNames:
+                artists += (artist + ", ")
+            albums = ""
+            for album in song.albumNames:
+                albums += (album + ", ")
+            genres = ""
+            for genre in song.genres:
+                genres += (genre + ", ")
+            self.console.print(f"{n}: {song.title} by {artists[:-2]} \n\tAppears on:\t{albums[:-2]} \n\tGenres:\t\t{genres[:-2]}")
+        
+        self.console.input("------------------------------------------\nPress enter to close search results...")
 
+
+    def search_songs(self, command):
+        # songs <keyword> optional<sort> optional<ASC/DESC>
+        if len(command) == 4:
+            keyword = command[1]
+            sort_attribute = command[2]
+            sort_order = command[3]
+            songList = self.interface.searchSongByTitle(keyword, sort_attribute, sort_order)
+        elif len(command) == 2:
+            keyword = command[1]
+            songList = self.interface.searchSongByTitle(keyword)
+        else:
+            self.console.print("Invalid arguments, usage: songs \[keyword] optional=\[sort by] optional=\[ASC/DESC]")
+            self.console.input("Press enter to continue...")
+            return
+        self.nice_print(songList, keyword)
+        
 
     def search_albums(self, command):
-        # search albums <keyword> optional<sort> optional<ASC/DESC>
+        # albums <keyword> optional<sort> optional<ASC/DESC>
         songs = list()
         if len(command) == 5:
             pass
@@ -358,7 +390,7 @@ Enter "quit" or "q" to """
 
 
     def search_artists(self, command):
-        # search artists <keyword> optional<sort> optional<ASC/DESC>
+        # artists <keyword> optional<sort> optional<ASC/DESC>
         songs = list()
         if len(command) == 5:
             pass
@@ -366,7 +398,7 @@ Enter "quit" or "q" to """
 
 
     def search_genres(self, command):
-        # search genres <keyword> optional<sort> optional<ASC/DESC>
+        # genres <keyword> optional<sort> optional<ASC/DESC>
         songs = list()
         if len(command) == 5:
             pass

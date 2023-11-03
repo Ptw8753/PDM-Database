@@ -4,6 +4,7 @@ import sys
 from datetime import datetime
 from database import Database
 from data_classes import *
+from data_classes import Song
 import random as rand
 
 # this is where we should write request queries
@@ -150,10 +151,11 @@ class Interface:
         return song
         #populate song here
 
+
     def search(self, attribute: str, keyword: str, sort: str, sort_type: str):
-        songs = list()
-        result = self.database.query(f'''
-        select song.title, artist.name, album.name, genre.name, song.length, count(listensto.songid) as playcount
+        songs = dict()
+        songData = self.database.query(f'''
+        select song.songid, song.title, artist.name, album.name, genre.name, song.length, count(listensto.songid) as playcount
         from song
         join songby on song.songid = songby.songid
         join artist on songby.artistid = artist.artistid
@@ -163,13 +165,36 @@ class Interface:
         join genre on songgenre.genreid = genre.genreid
         left join listensto on song.songid = listensto.songid
         where {attribute} like '%{keyword}%'
-        group by song.title, artist.name, album.name, genre.name, song.length
+        group by song.title, artist.name, album.name, genre.name, song.length, song.songid
         order by {sort} {sort_type}
         ''')
-        if result is None:
+        if songData is None:
             return songs
-        else:
-            pass # TODO parse result into list of songs
+        for tuple in songData:
+
+            songID = tuple[0]
+            songTitle = tuple[1]
+            artistName = tuple[2]
+            albumName = tuple[3]
+            genreName = tuple[4]
+            length = tuple[5]
+            globalPlaycount = tuple[6] # TODO should this be user or global playcount?
+
+            if songID in songs.keys():
+                s = songs.get(songID)
+                if albumName not in s.albumNames:
+                    s.albumNames.append(albumName)
+                if genreName not in s.genres:
+                    s.genres.append(genreName)
+                if artistName not in s.artistNames:
+                    s.artistNames.append(artistName)
+                songs[songID] = s
+            else:
+                s = Song(songTitle, [artistName], [albumName], [genreName], length, globalPlaycount)
+                songs[songID] = s
+
+        return songs.values() # return a list of song objects
+
 
     # song searches
     # each entry must list song name, artist name, album, length, and listen count
