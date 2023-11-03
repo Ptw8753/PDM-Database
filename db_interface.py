@@ -311,7 +311,6 @@ class Interface:
     # required
     # todo
     def deleteSongFromPlaylist(self,playlistid,songid):
-        pass
         self.database.query(f'''
         delete from playlistcontains where playlistcontains.songid = {songid} 
         and playlistcontains.playlistid = {playlistid}
@@ -321,11 +320,15 @@ class Interface:
     #remove intersection
     # required
     # todo
-    def deleteAlbumFromPlaylist(self,playlistid,albumid):
-        pass
+    def deleteAlbumFromPlaylist(self,playlistid,name):
+        albumid = self.getAlbumId(name)
+
         self.database.query(f'''
-        delete from playlistcontains where albumcontains.albumid = {albumid} 
-        intersect (select songid from playlistcontains))
+        delete from playlistcontains
+        where songid in ( select playlistcontains.songid
+        from playlistcontains join albumcontains 
+        on playlistcontains.songid = albumcontains.songid
+        where albumcontains.albumid = {albumid})
         and playlistcontains.playlistid = {playlistid}
         ''')
 
