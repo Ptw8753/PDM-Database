@@ -48,16 +48,7 @@ class Interface:
             ''')
         return query != []
     
-
-    # checks if there is a user with given email
-    # used for following users
-    def isEmailUsed(self, email: str):
-        query = self.database.query(f'''
-            select userid from users where email = '{email}'
-            ''')
-        return query != []
-
-
+    
     def isPlaylistNameUsed(self, name: str):
         query = self.database.query(f'''
             select name from playlist where name = '{name}'

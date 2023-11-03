@@ -29,14 +29,14 @@ class Cli:
 * listen \[songname] or \[albumname]  
 * follow \[useremail]  
 * unfollow \[useremail]  
-* help \[command]  
+* help \[command]   
 """
         elif self.screen == "collections":
             column1 ="""[bright_red]
 * create \[name]  
 * +album \[collectionname]  
 * +song \[collectionname]  
-* editname \[name] \[newname]  
+* rename \[name] \[newname]  
 """
 
             column2 ="""[bright_red]
@@ -355,10 +355,20 @@ Enter "quit" or "q" to """
 
 
     def edit_name(self, command):
-        # TODO
-        pass
+        if self.login_id is None:
+            self.console.print("You must be logged in!")
+            self.console.input("Press enter to continue...")
+            return
+        if len(command) != 3:
+            self.console.print("Invalid arguments, usage: rename \[playlist] \[new name]") 
+            self.console.input("Press enter to continue...")
+            return
+        success = self.interface.renamePlaylist(self.login_id, command[1], command[2])
+        if not success:
+            self.console.print(f"Cannot find playlist: '{command[1]}'")
+            self.console.input("Press enter to continue...")
 
-
+    
     def listen_collection(self, command):
         # TODO
         pass
@@ -375,7 +385,6 @@ Enter "quit" or "q" to """
         self.console.input("Press enter to view results...")
         self.console.clear()
 
-        quitted = False
         n = 0
         currentPage = 0
         if songsPerPage != 0:
@@ -386,27 +395,27 @@ Enter "quit" or "q" to """
             n += 1
             artists = ""
             for artist in song.artistNames:
-                artists += (artist + ", ")
+                artists += (f"[bright_blue]{artist}[white], ")
             albums = ""
             for album in song.albumNames:
-                albums += (album + ", ")
+                albums += (f"[bright_red]{album}[white], ")
             genres = ""
             for genre in song.genres:
                 genres += (genre + ", ")
-            self.console.print(f"{n}: {song.title} by {artists[:-2]} \n\tAppears on:\t{albums[:-2]} \n\tGenres:\t\t{genres[:-2]} \n\tPlaycount:\t{song.listenCount}")
+            self.console.print(f"{n}: [bright_green]{song.title} [white]by {artists[:-2]} \n\t[white]Appears on:\t{albums[:-2]} \n\t[white]Genres:\t\t{genres[:-2]} \n\tPlaycount:\t{song.listenCount}")
             if (songsPerPage != 0) and (n % songsPerPage == 0):
                 currentPage += 1
                 quit = self.console.input(f"------------------------------------------ Page {currentPage} of {maxPage}\nPress Enter to view next page...\nEnter 'q' or 'quit' to exit search results")
                 if quit in ['q', 'quit', 'Q', 'Quit', 'QUIT']:
-                    quitted = True
-                    break
+                    self.console.clear()
+                    return
                 self.console.clear()
 
-        if not quitted and currentPage == 0:
-            self.console.input("------------------------------------------\nPress enter to close search results...")
         if currentPage > 0 and currentPage != maxPage:
             currentPage += 1
             self.console.input(f"------------------------------------------ Page {currentPage} of {maxPage}\nPress enter to close search results...")
+        else:
+            self.console.input("------------------------------------------\nPress enter to close search results...")
 
     def invalid_search(self):
         self.console.print("Invalid arguments, usage: songs \[keyword] (optional=\[sort by] optional=\[ASC/DESC]) optional=\[songs per page (0 = print all)]")
@@ -556,7 +565,7 @@ Enter "quit" or "q" to """
                 elif (command[0] == "-song"):
                     self.delete_song(command)
 
-                elif (command[0] == "editname"):
+                elif (command[0] == "rename"):
                     self.edit_name(command)
 
                 elif (command[0] == "listen"):
