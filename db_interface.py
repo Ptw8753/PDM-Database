@@ -200,25 +200,21 @@ class Interface:
     # song searches
     # each entry must list song name, artist name, album, length, and listen count
     # required
-    # todo
     def searchSongByTitle(self, keyword: str, sort="song.title", sort_type="ASC"):
         return self.search("song.title", keyword, sort, sort_type)
     
 
     # required
-    # todo
     def searchSongByArtist(self, keyword: str, sort="song.title", sort_type="ASC"):
         return self.search("artist.name", keyword, sort, sort_type)
     
 
     # required
-    # todo
     def searchSongByAlbum(self, keyword: str, sort="song.title", sort_type="ASC"):
         return self.search("album.name", keyword, sort, sort_type)
 
 
     # required
-    # todo
     def searchSongByGenre(self, keyword: str, sort="song.title", sort_type="ASC"):
         return self.search("genre.name", keyword, sort, sort_type)
 
@@ -247,6 +243,7 @@ class Interface:
         else:
             return None
         
+
     def getAlbumId(self, name):
         albumid = self.database.query(f'''
         select albumid from album 
@@ -263,6 +260,35 @@ class Interface:
         songs = self.database.query(f'''
         select songid from albumcontains where albumcontains.albumid = {albumid} 
         except (select songid from playlistcontains)
+        ''')
+
+        return songs
+    
+
+    def getPlaylistSongTotal(self, playlistid):
+        songs = self.database.query(f'''
+        select COUNT(songid) from playlistcontains 
+        where playlistcontains.playlistid = {playlistid} 
+        ''')
+
+        return songs
+    
+
+    def getPlaylistDuration(self, playlistid):
+        duration = self.database.query(f'''
+        select SUM(length) from song where songid in
+        (select songid from playlistcontains 
+        where playlistcontains.playlistid = {playlistid})
+        ''')
+
+        return duration
+
+
+    def getAlbumSongNames(self, albumid):
+        songs = self.database.query(f'''
+        select title from song where songid in (select songid from albumcontains 
+        where albumcontains.albumid = {albumid} 
+        except (select songid from playlistcontains))
         ''')
 
         return songs
@@ -301,16 +327,16 @@ class Interface:
 
     # required
     # todo
-    def deleteSongFromPlaylist(self,playlistid,songid):
+    def deleteSongFromPlaylist(self,playlistid,name):
+        songid = self.getSongId(name)
+
         self.database.query(f'''
         delete from playlistcontains where playlistcontains.songid = {songid} 
         and playlistcontains.playlistid = {playlistid}
         ''')
 
 
-    #remove intersection
     # required
-    # todo
     def deleteAlbumFromPlaylist(self,playlistid,name):
         albumid = self.getAlbumId(name)
 
@@ -373,7 +399,7 @@ class Interface:
 
     # required
     def playSong(self, song_name, user_id):
-        song_id = self.getSongId(song_name, user_id)
+        song_id = self.getSongId(song_name)
 
         if song_id == None:
             return False

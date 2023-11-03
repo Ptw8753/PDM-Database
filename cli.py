@@ -96,12 +96,25 @@ Enter "quit" or "q" to """
         else:
             collections = self.interface.listAllCollections(self.login_id)
 
-            if collections == []:
+            if collections is None:
                 return ["You have no collections."]
+            else:
+                collections.sort()
 
         i = 0
         for collection in collections:
             column += "\n" + line_start + collection[0] + "  "
+            playlistid = self.interface.getPlaylistid(collection[0], self.login_id)
+            total_songs = self.interface.getPlaylistSongTotal(playlistid)[0][0]
+            
+            duration = self.interface.getPlaylistDuration(playlistid)[0][0]
+            if duration == None:
+                duration = 0
+            mins = str(duration // 60) + "min "
+            seconds = str(duration % 60) + "sec  "
+
+            column += "\n|-> Total songs: " + str(total_songs) + "  "
+            column += "\n|-> Duration: " + mins + seconds + "\n"
             i += 1
 
             if i % 4 == 0:
@@ -168,11 +181,19 @@ Enter "quit" or "q" to """
             self.console.print("Invalid arguments, usage: \nlisten \[songname]\nlisten \[albumname]")
             self.console.input("Press enter to continue...")
         else:
-            result = self.interface.playSong(title, self.login_id)
-            if result == False:
-                self.console.print("Song does not exist.")
+            result = self.interface.getAlbumId(title)
+            if result != None:
+                songs = self.interface.getAlbumSongNames(result)
+                for song in songs:
+                    title = song[0]
+                    self.interface.playSong(title, self.login_id)
+                    self.console.print("Now playing: " + title)
             else:
-                self.console.print("Now playing: " + title)
+                result = self.interface.playSong(title, self.login_id)
+                if result == False:
+                    self.console.print("Song does not exist.")
+                else:
+                    self.console.print("Now playing: " + title)
             self.console.input("Press enter to continue...")
 
 
@@ -375,8 +396,33 @@ Enter "quit" or "q" to """
 
 
     def delete_song(self, command):
-        # TODO
-        pass
+        if len(command) < 2:
+            self.console.print("Invalid arguments, usage: -song \[collectionname]")
+            self.console.input("Press enter to continue...")
+        
+        name = self.stringify(command[1:])
+
+        if (self.login_id == None):
+            self.console.print("Log in to delete album's songs from a collection.")
+            self.console.input("Press enter to continue...")
+            return
+        if self.interface.getPlaylistid(name, self.login_id) == []:
+            self.console.print("You have no collections to delete songs from.")
+            self.console.input("Press enter to continue...")
+            return
+        else:
+            playlistid = self.interface.getPlaylistid(name, self.login_id)
+            if playlistid == None:
+                self.console.print(f"Collection {name} does not exist.")
+            else:
+                song = self.console.input("Delete song: ")
+                result = self.interface.deleteSongFromPlaylist(playlistid, song)
+                if result == False:
+                    self.console.print("Invalid song.")
+                else:
+                    self.console.print(f"Successfully deleted song {song} from collection.")
+                self.console.input("Press enter to continue...")
+                return
 
 
     def edit_name(self, command):
