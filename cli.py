@@ -359,7 +359,7 @@ Enter "quit" or "q" to """
             genres = ""
             for genre in song.genres:
                 genres += (genre + ", ")
-            self.console.print(f"{n}: {song.title} by {artists[:-2]} \n\tAppears on:\t{albums[:-2]} \n\tGenres:\t\t{genres[:-2]}")
+            self.console.print(f"{n}: {song.title} by {artists[:-2]} \n\tAppears on:\t{albums[:-2]} \n\tGenres:\t\t{genres[:-2]} \n\tPlaycount:\t{song.listenCount}")
         
         self.console.input("------------------------------------------\nPress enter to close search results...")
 
@@ -367,12 +367,12 @@ Enter "quit" or "q" to """
     def search_songs(self, command):
         # songs <keyword> optional<sort> optional<ASC/DESC>
         if len(command) == 4:
-            keyword = command[1]
+            keyword = command[1].replace('_', ' ')
             sort_attribute = command[2]
             sort_order = command[3]
             songList = self.interface.searchSongByTitle(keyword, sort_attribute, sort_order)
         elif len(command) == 2:
-            keyword = command[1]
+            keyword = command[1].replace('_', ' ')
             songList = self.interface.searchSongByTitle(keyword)
         else:
             self.console.print("Invalid arguments, usage: songs \[keyword] optional=\[sort by] optional=\[ASC/DESC]")
@@ -383,26 +383,55 @@ Enter "quit" or "q" to """
 
     def search_albums(self, command):
         # albums <keyword> optional<sort> optional<ASC/DESC>
-        songs = list()
-        if len(command) == 5:
-            pass
-        pass
+        if len(command) == 4:
+            keyword = command[1].replace('_', ' ')
+            sort_attribute = command[2]
+            sort_order = command[3]
+            songList = self.interface.searchSongByAlbum(keyword, sort_attribute, sort_order)
+        elif len(command) == 2:
+            keyword = command[1].replace('_', ' ')
+            songList = self.interface.searchSongByAlbum(keyword)
+        else:
+            self.console.print("Invalid arguments, usage: albums \[keyword] optional=\[sort by] optional=\[ASC/DESC]")
+            self.console.input("Press enter to continue...")
+            return
+        self.nice_print(songList, keyword)
 
 
     def search_artists(self, command):
         # artists <keyword> optional<sort> optional<ASC/DESC>
-        songs = list()
-        if len(command) == 5:
-            pass
-        pass
+        if len(command) == 4:
+            keyword = command[1].replace('_', ' ')
+            sort_attribute = command[2]
+            sort_order = command[3]
+            songList = self.interface.searchSongByArtist(keyword, sort_attribute, sort_order)
+        elif len(command) == 2:
+            keyword = command[1].replace('_', ' ')
+            if keyword[0] == '\'' and keyword[-1] == '\'':
+                keyword = keyword[1:-1]
+            songList = self.interface.searchSongByArtist(keyword)
+        else:
+            self.console.print("Invalid arguments, usage: artists \[keyword] optional=\[sort by] optional=\[ASC/DESC]")
+            self.console.input("Press enter to continue...")
+            return
+        self.nice_print(songList, keyword)
 
 
     def search_genres(self, command):
         # genres <keyword> optional<sort> optional<ASC/DESC>
-        songs = list()
-        if len(command) == 5:
-            pass
-        pass
+        if len(command) == 4:
+            keyword = command[1].replace('_', ' ')
+            sort_attribute = command[2]
+            sort_order = command[3]
+            songList = self.interface.searchSongByGenre(keyword, sort_attribute, sort_order)
+        elif len(command) == 2:
+            keyword = command[1].replace('_', ' ')
+            songList = self.interface.searchSongByGenre(keyword)
+        else:
+            self.console.print("Invalid arguments, usage: genres \[keyword] optional=\[sort by] optional=\[ASC/DESC]")
+            self.console.input("Press enter to continue...")
+            return
+        self.nice_print(songList, keyword)
 
 
     def input_loop(self):
