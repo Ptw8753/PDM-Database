@@ -610,7 +610,11 @@ Enter "quit" or "q" to """
             self.console.print("Invalid argument: rating should be an integer 0-5")
             self.console.input("Press enter to continue...")
             return
-        success = self.interface.rateSong(self.login_id, song, rating)
+        if int(rating) < 0 or int(rating) > 5:
+            self.console.print("Invalid argument: rating should be an integer 0-5")
+            self.console.input("Press enter to continue...")
+            return
+        success = self.interface.rateSong(self.login_id, song, int(rating))
         if success:
             self.console.print(f"Rated {song}: {rating}")
             self.console.input("Press enter to continue...")
