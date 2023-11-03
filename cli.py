@@ -367,9 +367,9 @@ Enter "quit" or "q" to """
     # search command goes as follows
     # seach <subject> <keyword> optional=<order by>
 
-    # helper function to print list of songs
-    # TODO make it print seciton at a time maybe
+    # helper function to print list of songs page by page w/ specified songsPerPage (default 15)
     def nice_print(self, songList, keyword, songsPerPage=15):
+        numSongs = len(songList)
 
         self.console.print(f"Search Complete!\n{len(songList)} songs found with keyword: '{keyword}'")
         self.console.input("Press enter to view results...")
@@ -377,6 +377,11 @@ Enter "quit" or "q" to """
 
         quitted = False
         n = 0
+        currentPage = 0
+        if songsPerPage != 0:
+            maxPage = int(numSongs / songsPerPage) + 1
+            if numSongs % songsPerPage == 0:
+                maxPage -= 1
         for song in songList:
             n += 1
             artists = ""
@@ -389,85 +394,108 @@ Enter "quit" or "q" to """
             for genre in song.genres:
                 genres += (genre + ", ")
             self.console.print(f"{n}: {song.title} by {artists[:-2]} \n\tAppears on:\t{albums[:-2]} \n\tGenres:\t\t{genres[:-2]} \n\tPlaycount:\t{song.listenCount}")
-            if n % songsPerPage == 0:
-                quit = self.console.input("------------------------------------------\nPress Enter to view next page...\nEnter 'q' or 'quit' to exit search results")
+            if (songsPerPage != 0) and (n % songsPerPage == 0):
+                currentPage += 1
+                quit = self.console.input(f"------------------------------------------ Page {currentPage} of {maxPage}\nPress Enter to view next page...\nEnter 'q' or 'quit' to exit search results")
                 if quit in ['q', 'quit', 'Q', 'Quit', 'QUIT']:
                     quitted = True
                     break
                 self.console.clear()
 
-        if not quitted:
+        if not quitted and currentPage == 0:
             self.console.input("------------------------------------------\nPress enter to close search results...")
+        if currentPage > 0 and currentPage != maxPage:
+            currentPage += 1
+            self.console.input(f"------------------------------------------ Page {currentPage} of {maxPage}\nPress enter to close search results...")
+
+    def invalid_search(self):
+        self.console.print("Invalid arguments, usage: songs \[keyword] (optional=\[sort by] optional=\[ASC/DESC]) optional=\[songs per page (0 = print all)]")
+        self.console.input("Press enter to continue...")
+
+    def get_search_args(self, command):
+        keyword = None
+        sort_attribute = None
+        sort_order = None
+        songs_per_page = None
+        x = len(command)
+        if x not in [2, 3, 4, 5]:
+            self.invalid_search()
+            return
+        keyword = command[1] # if x is at least 2
+        if x in [3, 5]:        # if x is 3 or 5
+            songs_per_page = command[x-1]
+        if x == 4:              # if x is 4
+            sort_attribute = command[2]
+            sort_order = command[3]
+        return (keyword, sort_attribute, sort_order, songs_per_page)
 
 
     def search_songs(self, command):
-        # songs <keyword> optional<sort> optional<ASC/DESC>
-        if len(command) == 4:
-            keyword = command[1].replace('_', ' ')
-            sort_attribute = command[2]
-            sort_order = command[3]
-            songList = self.interface.searchSongByTitle(keyword, sort_attribute, sort_order)
-        elif len(command) == 2:
-            keyword = command[1].replace('_', ' ')
+        keyword, sort_attribute, sort_order, songs_per_page = self.get_search_args(command)
+        if sort_attribute is None and sort_order is None:
+            self.console.print("Searching...")
             songList = self.interface.searchSongByTitle(keyword)
+        elif sort_attribute is not None and sort_order is not None:
+            self.console.print("Searching...")
+            songList = self.interface.searchSongByTitle(keyword, sort_attribute, sort_order)
         else:
-            self.console.print("Invalid arguments, usage: songs \[keyword] optional=\[sort by] optional=\[ASC/DESC]")
-            self.console.input("Press enter to continue...")
+            self.invalid_search()
             return
-        self.nice_print(songList, keyword)
+        if songs_per_page is not None:
+            self.nice_print(songList, keyword, int(songs_per_page))
+        else:
+            self.nice_print(songList, keyword)
         
 
     def search_albums(self, command):
-        # albums <keyword> optional<sort> optional<ASC/DESC>
-        if len(command) == 4:
-            keyword = command[1].replace('_', ' ')
-            sort_attribute = command[2]
-            sort_order = command[3]
-            songList = self.interface.searchSongByAlbum(keyword, sort_attribute, sort_order)
-        elif len(command) == 2:
-            keyword = command[1].replace('_', ' ')
+        keyword, sort_attribute, sort_order, songs_per_page = self.get_search_args(command)
+        if sort_attribute is None and sort_order is None:
+            self.console.print("Searching...")
             songList = self.interface.searchSongByAlbum(keyword)
+        elif sort_attribute is not None and sort_order is not None:
+            self.console.print("Searching...")
+            songList = self.interface.searchSongByAlbum(keyword, sort_attribute, sort_order)
         else:
-            self.console.print("Invalid arguments, usage: albums \[keyword] optional=\[sort by] optional=\[ASC/DESC]")
-            self.console.input("Press enter to continue...")
+            self.invalid_search()
             return
-        self.nice_print(songList, keyword)
+        if songs_per_page is not None:
+            self.nice_print(songList, keyword, int(songs_per_page))
+        else:
+            self.nice_print(songList, keyword)
 
 
     def search_artists(self, command):
-        # artists <keyword> optional<sort> optional<ASC/DESC>
-        if len(command) == 4:
-            keyword = command[1].replace('_', ' ')
-            sort_attribute = command[2]
-            sort_order = command[3]
-            songList = self.interface.searchSongByArtist(keyword, sort_attribute, sort_order)
-        elif len(command) == 2:
-            keyword = command[1].replace('_', ' ')
-            if keyword[0] == '\'' and keyword[-1] == '\'':
-                keyword = keyword[1:-1]
+        keyword, sort_attribute, sort_order, songs_per_page = self.get_search_args(command)
+        if sort_attribute is None and sort_order is None:
+            self.console.print("Searching...")
             songList = self.interface.searchSongByArtist(keyword)
+        elif sort_attribute is not None and sort_order is not None:
+            self.console.print("Searching...")
+            songList = self.interface.searchSongByArtist(keyword, sort_attribute, sort_order)
         else:
-            self.console.print("Invalid arguments, usage: artists \[keyword] optional=\[sort by] optional=\[ASC/DESC]")
-            self.console.input("Press enter to continue...")
+            self.invalid_search()
             return
-        self.nice_print(songList, keyword)
+        if songs_per_page is not None:
+            self.nice_print(songList, keyword, int(songs_per_page))
+        else:
+            self.nice_print(songList, keyword)
 
 
     def search_genres(self, command):
-        # genres <keyword> optional<sort> optional<ASC/DESC>
-        if len(command) == 4:
-            keyword = command[1].replace('_', ' ')
-            sort_attribute = command[2]
-            sort_order = command[3]
-            songList = self.interface.searchSongByGenre(keyword, sort_attribute, sort_order)
-        elif len(command) == 2:
-            keyword = command[1].replace('_', ' ')
+        keyword, sort_attribute, sort_order, songs_per_page = self.get_search_args(command)
+        if sort_attribute is None and sort_order is None:
+            self.console.print("Searching...")
             songList = self.interface.searchSongByGenre(keyword)
+        elif sort_attribute is not None and sort_order is not None:
+            self.console.print("Searching...")
+            songList = self.interface.searchSongByGenre(keyword, sort_attribute, sort_order)
         else:
-            self.console.print("Invalid arguments, usage: genres \[keyword] optional=\[sort by] optional=\[ASC/DESC]")
-            self.console.input("Press enter to continue...")
+            self.invalid_search()
             return
-        self.nice_print(songList, keyword)
+        if songs_per_page is not None:
+            self.nice_print(songList, keyword, int(songs_per_page))
+        else:
+            self.nice_print(songList, keyword)
 
 
     def input_loop(self):
