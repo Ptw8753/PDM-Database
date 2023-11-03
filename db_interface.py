@@ -455,6 +455,29 @@ class Interface:
             ''')
         return not self.isFollowing(userid, otherid)
 
+    def rateSong(self, user_id: int, song_to_rate: str, rating: int):
+        # check that rating is between 1 and 5
+        if rating not in [1,2,3,4,5]:
+            return False
+        #get the song id to rate
+        song_id = self.database.query(f'''select songid from song where title = '{song_to_rate}' ''')[0][0]
+        #check for existing rating
+        if self.isExistingRating(user_id, song_id):
+            #update existing rating
+            self.database.query(f'''
+                        update rates set userrating = '{rating}'
+                        where userid = '{user_id}' and songid = {song_id}
+                        ''')
+        else:
+            #add new rating
+            self.database.query(f'''
+                        insert into rates(userid, songid, userrating)
+                        values({user_id}, '{song_id}', '{rating}')  
+                        ''')
+
+
+    def isExistingRating(self, user_id: int, song_id: int):
+        return not self.database.query(f'''select * from rates where userid = {user_id} and songid = {song_id} ''') == []
 
     #get next id functions create a new id greater than the max found in the database
     def generateIdForTable(self, tableName: str) -> str:
