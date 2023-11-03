@@ -9,3 +9,13 @@ class Song:
     genres: list[str]
     length: int
     listenCount: int
+
+@dataclass
+class User:
+    username: str
+    password: str
+    firstName: str
+    lastName: str
+    email: str
+    creationDate: date
+    lastAccess: datetime
