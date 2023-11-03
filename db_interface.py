@@ -259,7 +259,15 @@ class Interface:
     def getAlbumSongs(self, albumid):
         songs = self.database.query(f'''
         select songid from albumcontains where albumcontains.albumid = {albumid} 
-        except (select songid from playlistcontains)
+        ''')
+
+        return songs
+    
+
+    def getPlaylistSongNames(self, playlistid):
+        songs = self.database.query(f'''
+        select title from song where songid in 
+        (select song from playlistcontains where playlistcontains.playlistid = {playlistid}) 
         ''')
 
         return songs
@@ -287,8 +295,7 @@ class Interface:
     def getAlbumSongNames(self, albumid):
         songs = self.database.query(f'''
         select title from song where songid in (select songid from albumcontains 
-        where albumcontains.albumid = {albumid} 
-        except (select songid from playlistcontains))
+        where albumcontains.albumid = {albumid})
         ''')
 
         return songs

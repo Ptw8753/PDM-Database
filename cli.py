@@ -123,9 +123,6 @@ Enter "quit" or "q" to """
                 columns.append(column)
                 column = "[bright_red]"
 
-            elif i == len(collections):
-                column += "\n"
-
         columns.append(column)
         return columns
         
@@ -442,8 +439,23 @@ Enter "quit" or "q" to """
 
     
     def listen_collection(self, command):
-        # TODO
-        pass
+        title = self.stringify(command[1:])
+
+        if len(command) < 2:
+            self.console.print("Invalid arguments, usage: \nlisten \[collectionname]")
+            self.console.input("Press enter to continue...")
+        else:
+            result = self.interface.getPlaylistid(title, self.login_id)
+            if result != None:
+                songs = self.interface.getPlaylistSongNames(result)
+                for song in songs:
+                    title = song[0]
+                    self.interface.playSong(title, self.login_id)
+                    self.console.print("Now playing: " + title)
+            else:
+                self.console.print("Song does not exist.")
+
+            self.console.input("Press enter to continue...")
 
 
     # search command goes as follows
