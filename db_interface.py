@@ -459,8 +459,10 @@ class Interface:
         # check that rating is between 1 and 5
         if rating not in [1,2,3,4,5]:
             return False
+        
         #get the song id to rate
         song_id = self.database.query(f'''select songid from song where title = '{song_to_rate}' ''')[0][0]
+
         #check for existing rating
         if self.isExistingRating(user_id, song_id):
             #update existing rating
@@ -468,12 +470,14 @@ class Interface:
                         update rates set userrating = '{rating}'
                         where userid = '{user_id}' and songid = {song_id}
                         ''')
+            return True
         else:
             #add new rating
             self.database.query(f'''
                         insert into rates(userid, songid, userrating)
                         values({user_id}, '{song_id}', '{rating}')  
                         ''')
+            return True
 
 
     def isExistingRating(self, user_id: int, song_id: int):

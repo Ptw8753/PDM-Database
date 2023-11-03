@@ -26,7 +26,8 @@ class Cli:
 * search
 """
             column2 ="""[bright_green]
-* listen \[songname] or \[albumname]  
+* listen \[songname] or \[albumname]
+* rate \[songname] \[rating (1-5)] 
 * follow \[useremail]  
 * unfollow \[useremail]  
 * help \[command]   
@@ -511,6 +512,10 @@ Enter "quit" or "q" to """
 
 
     def search_songs(self, command):
+        if len(command) >= 2:
+            if command[1] is None:
+                self.invalid_search()
+                return
         keyword, sort_attribute, sort_order, songs_per_page = self.get_search_args(command)
         if sort_attribute is None and sort_order is None:
             self.console.print("Searching...")
@@ -578,6 +583,29 @@ Enter "quit" or "q" to """
             self.nice_print(songList, keyword)
 
 
+    def rate(self, command):
+        if self.login_id is None:
+            self.console.print("You must be logged in!")
+            self.console.input("Press enter to continue...")
+            return
+        if len(command) != 3:
+            self.console.print("Invalid arguments, usage: rate \[song name] \[rating]")
+            self.console.input("Press enter to continue...")
+            return
+        rating = command[2]
+        song = command[1].replace('_', ' ')
+        if not rating.isdigit():
+            self.console.print("Invalid argument: rating should be an integer 0-5")
+            self.console.input("Press enter to continue...")
+            return
+        success = self.interface.rateSong(self.login_id, song, rating)
+        if success:
+            self.console.print(f"Rated {song}: {rating}")
+            self.console.input("Press enter to continue...")
+        else:
+            self.console.input(f"Unable to find song: {song}\nPress enter to continue...")
+
+
     def input_loop(self):
         input_str = "null"
 
@@ -606,6 +634,9 @@ Enter "quit" or "q" to """
 
                 elif (command[0] == "listen"):
                     self.listen(command)
+
+                elif (command[0] == "rate"):
+                    self.rate(command)
 
                 elif (command[0] == "follow"):
                     self.follow(command)
