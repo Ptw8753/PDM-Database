@@ -281,9 +281,35 @@ Enter "quit" or "q" to """
 
 
     def add_album(self, command):
-        # TODO 
-        pass
+        if len(command) < 2:
+            self.console.print("Invalid arguments, usage: +album \[collectionname]")
+            self.console.input("Press enter to continue...")
+        
+        name = self.stringify(command[1:])
 
+        if (self.login_id == None):
+            self.console.print("Log in to add an album's songs to a collection.")
+            self.console.input("Press enter to continue...")
+            return
+        if self.interface.getPlaylistid(name, self.login_id) == []:
+            self.console.print("You have no collections to add songs to.")
+            self.console.input("Press enter to continue...")
+            return
+        else:
+            playlistid = self.interface.getPlaylistid(name, self.login_id)
+            if playlistid == None:
+                self.console.print(f"Collection {name} does not exist.")
+            else:
+                album = self.console.input("Add album: ")
+                result = self.interface.addAlbumToPlaylist(playlistid, album)
+                if result == False:
+                    self.console.print("Invalid album.")
+                else:
+                    self.console.print(f"Successfully added album {album} to collection.")
+                self.console.input("Press enter to continue...")
+                return
+            
+        
 
     def delete_album(self, command):
         # TODO

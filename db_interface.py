@@ -255,6 +255,26 @@ class Interface:
             return songid[0][0]
         else:
             return None
+        
+    def getAlbumId(self, name):
+        albumid = self.database.query(f'''
+        select albumid from album 
+        where album.name = '{name}'
+        ''')
+
+        if(albumid != []):
+            return albumid[0][0]
+        else:
+            return None
+        
+    
+    def getAlbumSongs(self, albumid):
+        songs = self.database.query(f'''
+        select songid from albumcontains where albumcontains.albumid = {albumid} 
+        except (select songid from playlistcontains)
+        ''')
+
+        return songs
 
 
     # required
@@ -271,17 +291,21 @@ class Interface:
 
 
     # required
-    # todo
-    # TODO this query dont look right
-    def addAlbumToPlaylist(self, playlistid, albumid):
-        pass
-        self.database.query(f'''
-        insert into PlaylistContains values({playlistid},
-        (select songid from albumcontains where albumcontains.albumid = {albumid} 
-        except (select songid from playlistcontains)), 
-        (select count(playlistid) from playlistcontains 
-        where playlistcontains.playlistid = {playlistid}) + 1)
-        ''')
+    def addAlbumToPlaylist(self, playlistid, name):
+        albumid = self.getAlbumId(name)
+        if albumid == None:
+            return False
+        
+        songs = self.getAlbumSongs(albumid)
+        
+        for song in songs:
+            songid = song[0]
+
+            self.database.query(f'''
+            insert into playlistcontains values({playlistid}, {songid},
+            (select count(playlistid) from playlistcontains 
+            where playlistcontains.playlistid = {playlistid}) + 1)
+            ''')
 
 
     # required
