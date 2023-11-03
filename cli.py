@@ -369,10 +369,13 @@ Enter "quit" or "q" to """
 
     # helper function to print list of songs
     # TODO make it print seciton at a time maybe
-    def nice_print(self, songList, keyword):
+    def nice_print(self, songList, keyword, songsPerPage=15):
+
         self.console.print(f"Search Complete!\n{len(songList)} songs found with keyword: '{keyword}'")
         self.console.input("Press enter to view results...")
-        
+        self.console.clear()
+
+        quitted = False
         n = 0
         for song in songList:
             n += 1
@@ -386,8 +389,15 @@ Enter "quit" or "q" to """
             for genre in song.genres:
                 genres += (genre + ", ")
             self.console.print(f"{n}: {song.title} by {artists[:-2]} \n\tAppears on:\t{albums[:-2]} \n\tGenres:\t\t{genres[:-2]} \n\tPlaycount:\t{song.listenCount}")
-        
-        self.console.input("------------------------------------------\nPress enter to close search results...")
+            if n % songsPerPage == 0:
+                quit = self.console.input("------------------------------------------\nPress Enter to view next page...\nEnter 'q' or 'quit' to exit search results")
+                if quit in ['q', 'quit', 'Q', 'Quit', 'QUIT']:
+                    quitted = True
+                    break
+                self.console.clear()
+
+        if not quitted:
+            self.console.input("------------------------------------------\nPress enter to close search results...")
 
 
     def search_songs(self, command):
