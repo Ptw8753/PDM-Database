@@ -57,11 +57,13 @@ class Interface:
             ''')
         return query != []
 
+
     def isPlaylistNameUsed(self, name: str):
         query = self.database.query(f'''
             select name from playlist where name = '{name}'
             ''')
         return query != []
+
 
     # converts email into userid
     # returns false if errors, true if success
@@ -73,6 +75,7 @@ class Interface:
             ''')
         if query is not None:
             return query[0][0]
+
 
     # checks if there is a user with given email
     # used for following users
@@ -82,6 +85,7 @@ class Interface:
             ''')
         return query != []
 
+
     # converts email into userid
     # returns false if errors, true if success
     def getIDfromEmail(self, email: str):
@@ -92,6 +96,7 @@ class Interface:
             ''')
         if query is not None:
             return query[0][0]
+
 
     # create a row of user table
     # returns false if an error
@@ -208,11 +213,13 @@ class Interface:
     def searchSongByTitle(self, keyword: str, sort="song.title", sort_type="ASC"):
         return self.search("song.title", keyword, sort, sort_type)
     
+
     # required
     # todo
     def searchSongByArtist(self, keyword: str, sort="song.title", sort_type="ASC"):
         return self.search("artist.name", keyword, sort, sort_type)
     
+
     # required
     # todo
     def searchSongByAlbum(self, keyword: str, sort="song.title", sort_type="ASC"):
@@ -298,6 +305,7 @@ class Interface:
         and playlistcontains.playlistid = {playlistid}
         ''')
 
+
     # required
     def renamePlaylist(self, userid: int, old_name: str, new_name: str):
         query = self.database.query(f'''
@@ -311,6 +319,7 @@ class Interface:
             where name = '{old_name}' and userid = {userid}
             ''')
             return True
+
 
     # required
     def deletePlaylist(self, user_id, name):
@@ -342,6 +351,7 @@ class Interface:
                 insert into listensto values({user_id}, {song_id},
                 '{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
                 ''')
+
 
     # required
     def playSong(self, song_name, user_id):
