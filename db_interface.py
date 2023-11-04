@@ -156,7 +156,7 @@ class Interface:
     def search(self, attribute: str, keyword: str, sort: str, sort_type: str):
         songs = dict()
         songData = self.database.query(f'''
-        select song.songid, song.title, artist.name, album.name, genre.name, song.length, count(listensto.songid) as playcount
+        select song.songid, song.title, artist.name, album.name, genre.name, song.length, song.releasedate, count(listensto.songid) as playcount
         from song
         join songby on song.songid = songby.songid
         join artist on songby.artistid = artist.artistid
@@ -166,7 +166,7 @@ class Interface:
         join genre on songgenre.genreid = genre.genreid
         left join listensto on song.songid = listensto.songid
         where {attribute} like '%{keyword}%'
-        group by song.title, artist.name, album.name, genre.name, song.length, song.songid
+        group by song.title, artist.name, album.name, genre.name, song.length, song.releasedate, song.songid
         order by {sort} {sort_type}
         ''')
         if songData is None:
@@ -179,7 +179,8 @@ class Interface:
             albumName = tuple[3]
             genreName = tuple[4]
             length = tuple[5]
-            globalPlaycount = tuple[6] # TODO should this be user or global playcount?
+            releaseDate = tuple[6] #useless :/
+            globalPlaycount = tuple[7] # TODO should this be user or global playcount?
 
             if songID in songs.keys():
                 s = songs.get(songID)
