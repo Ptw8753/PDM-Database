@@ -248,14 +248,7 @@ Enter "quit" or "q" to """
             self.console.input("Press enter to continue...")
         else:
             self.console.print("Something went wrong")
-            self.console.input("Press enter to continue...")
-
-
-    def help(self, command):
-        # TODO
-        # maybe we do this, not needed
-        pass
-
+            self.console.input("Press enter to continue...") 
 
     def create(self, command):
         name = self.stringify(command[1:])
