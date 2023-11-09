@@ -24,23 +24,23 @@ class Cli:
 * signup  
 * collections  
 * search
-* Type 'q' to Quit
 """
             column2 ="""[bright_green]
-* listen \[songname] or \[albumname]
-* rate \[songname] \[rating (1-5)] 
+* listen \[songname] or \[albumname]  
+* rate \[songname] \[rating (1-5)]   
 * follow \[useremail]  
 * unfollow \[useremail]  
-* help \[command]   
-* Type 'q' to go back
 """
+            column3 ="""[bright_green]
+* statistics
+"""
+
         elif self.screen == "collections":
             column1 ="""[bright_red]
 * create \[name]  
 * +album \[collectionname]  
 * +song \[collectionname]  
 * rename \[name] \[newname]  
-* Type 'q' to go back 
 """
 
             column2 ="""[bright_red]
@@ -48,7 +48,6 @@ class Cli:
 * -album \[collectionname]  
 * -song \[collectionname]  
 * listen \[collectionname]  
-* Type 'q' to go back
 """
 
         elif self.screen == "search":
@@ -57,16 +56,29 @@ class Cli:
 * albums \[albumname]
 * artists \[artistname]
 * genres \[genre]
-* Type 'q' to go back
 """
             column2 =""""""
 
-        if self.screen != "collections":
-            self.console.print(Panel(Columns([column1, column2]), title="Command List"))
-        else:
+        elif self.screen == "statistics":
+            column1 ="""[bright_yellow]
+* topsongs [global or followers]
+* topgenres 
+* recommendations
+"""
+
+            column2 =""""""
+        
+        if self.screen == "collections":
             self.console.print(Columns(
-                [Panel(Columns([column1, column2]), title="Command List"), 
-                 Panel(Columns(self.render_collections()), title="Collections")]))
+                    [Panel(Columns([column1, column2]), title="Command List"), 
+                    Panel(Columns(self.render_collections()), title="Collections")]))
+        elif self.screen == "statistics":
+            self.console.print(Columns(
+                    [Panel(Columns([column1, column2]), title="Command List"), 
+                    Panel(Columns(self.render_statistics()), title="User Stats")]))
+        else:
+            self.console.print(Panel(Columns([column1, column2, column3]), title="Command List"))
+            
 
     
     def render_heading(self):
@@ -130,6 +142,12 @@ Enter "quit" or "q" to """
 
         columns.append(column)
         return columns
+
+
+    def render_statistics(self):
+        columns = []
+        column = "[bright_green]"
+        line_start = "* "
         
 
     def login(self, command):
@@ -256,6 +274,7 @@ Enter "quit" or "q" to """
             self.console.print("Something went wrong")
             self.console.input("Press enter to continue...") 
 
+
     def create(self, command):
         name = self.stringify(command[1:])
 
@@ -325,8 +344,7 @@ Enter "quit" or "q" to """
                     self.console.print(f"Successfully added album {album} to collection.")
                 self.console.input("Press enter to continue...")
                 return
-            
-        
+              
 
     def delete_album(self, command):
         if len(command) < 2:
@@ -458,7 +476,6 @@ Enter "quit" or "q" to """
 
     # search command goes as follows
     # seach <subject> <keyword> optional=<order by>
-
     # helper function to print list of songs page by page w/ specified songsPerPage (default 15)
     def nice_print(self, songList, keyword, songsPerPage=15):
         numSongs = len(songList)
@@ -499,9 +516,11 @@ Enter "quit" or "q" to """
         else:
             self.console.input("------------------------------------------\nPress enter to close search results...")
 
+
     def invalid_search(self):
         self.console.print("Invalid arguments, usage: songs \[keyword] (optional=\[sort by] optional=\[ASC/DESC]) optional=\[songs per page (0 = print all)]")
         self.console.input("Press enter to continue...")
+
 
     def get_search_args(self, command):
         keyword = None
@@ -515,7 +534,7 @@ Enter "quit" or "q" to """
         keyword = command[1] # if x is at least 2
         if x in [3, 5]:        # if x is 3 or 5
             songs_per_page = command[x-1]
-        if x == 4:              # if x is 4
+        if x in [4, 5]:              # if x is 4 or 5
             sort_attribute = command[2]
             sort_order = command[3]
         return (keyword, sort_attribute, sort_order, songs_per_page)
@@ -658,9 +677,8 @@ Enter "quit" or "q" to """
                 elif (command[0] == "unfollow"):
                     self.unfollow(command)
 
-                elif (command[0] == "help"):
-                    self.console.print("Not implemented.")
-                    self.console.input("Press enter to continue...")
+                elif (command[0] == "statistics" or "stats"):
+                    self.screen = "statistics"
             
             elif (self.screen == "collections"):
                 if (command[0] == "create"):
@@ -700,8 +718,12 @@ Enter "quit" or "q" to """
                 elif (command[0] == "genres"):
                     self.search_genres(command)
 
+            elif (self.screen == "statistics"):
+                if (command[0] == ""):
+                    pass
+
             if (command[0]) in ["quit", "q"]:
-                if self.screen in ["collections", "search"]:
+                if self.screen in ["collections", "search", "statistics"]:
                     self.screen = "main"
                 else:
                     break
