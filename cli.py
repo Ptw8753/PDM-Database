@@ -17,6 +17,7 @@ class Cli:
         self.render_heading()
         self.input_loop()
 
+
     def print_options(self):
         if self.screen == "main":
             column1 ="""[bright_green]
@@ -61,7 +62,8 @@ class Cli:
 
         elif self.screen == "statistics":
             column1 ="""[bright_yellow]
-* topsongs [global or followers]
+* globalrankings
+* followerrankings
 * topgenres 
 * recommendations
 """
@@ -79,7 +81,6 @@ class Cli:
         else:
             self.console.print(Panel(Columns([column1, column2, column3]), title="Command List"))
             
-
     
     def render_heading(self):
         header = """# Principles of Data Management: Music Domain
@@ -639,6 +640,18 @@ Enter "quit" or "q" to """
             self.console.input(f"Unable to find song: {song}\nPress enter to continue...")
 
 
+    def global_songs(self):
+        pass
+
+
+    def follower_songs(self):
+        pass
+
+
+    def recommend(self):
+        pass
+
+
     def input_loop(self):
         input_str = "null"
 
@@ -719,8 +732,12 @@ Enter "quit" or "q" to """
                     self.search_genres(command)
 
             elif (self.screen == "statistics"):
-                if (command[0] == ""):
-                    pass
+                if (command[0] == "globalrankings"):
+                    self.global_songs(command)
+                elif (command[0] == "followerrankings"):
+                    self.follower_songs(command)
+                elif (command[0] == "recommendations" or "recs"):
+                    self.recommend(command)
 
             if (command[0]) in ["quit", "q"]:
                 if self.screen in ["collections", "search", "statistics"]:
