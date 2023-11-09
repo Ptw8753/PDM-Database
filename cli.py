@@ -24,6 +24,7 @@ class Cli:
 * signup  
 * collections  
 * search
+* Type 'q' to Quit
 """
             column2 ="""[bright_green]
 * listen \[songname] or \[albumname]
@@ -31,6 +32,7 @@ class Cli:
 * follow \[useremail]  
 * unfollow \[useremail]  
 * help \[command]   
+* Type 'q' to go back
 """
         elif self.screen == "collections":
             column1 ="""[bright_red]
@@ -38,6 +40,7 @@ class Cli:
 * +album \[collectionname]  
 * +song \[collectionname]  
 * rename \[name] \[newname]  
+* Type 'q' to go back 
 """
 
             column2 ="""[bright_red]
@@ -45,6 +48,7 @@ class Cli:
 * -album \[collectionname]  
 * -song \[collectionname]  
 * listen \[collectionname]  
+* Type 'q' to go back
 """
 
         elif self.screen == "search":
@@ -53,6 +57,7 @@ class Cli:
 * albums \[albumname]
 * artists \[artistname]
 * genres \[genre]
+* Type 'q' to go back
 """
             column2 =""""""
 
