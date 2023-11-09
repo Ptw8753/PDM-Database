@@ -690,7 +690,7 @@ Enter "quit" or "q" to """
                 elif (command[0] == "unfollow"):
                     self.unfollow(command)
 
-                elif (command[0] == "statistics" or "stats"):
+                elif (command[0] in ["statistics", "stats"]):
                     self.screen = "statistics"
             
             elif (self.screen == "collections"):
@@ -736,7 +736,7 @@ Enter "quit" or "q" to """
                     self.global_songs(command)
                 elif (command[0] == "followerrankings"):
                     self.follower_songs(command)
-                elif (command[0] == "recommendations" or "recs"):
+                elif (command[0] in ["recommendations", "recs"]):
                     self.recommend(command)
 
             if (command[0]) in ["quit", "q"]:
