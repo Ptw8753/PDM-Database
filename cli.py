@@ -78,8 +78,10 @@ class Cli:
             self.console.print(Columns(
                     [Panel(Columns([column1, column2]), title="Command List"), 
                     Panel(Columns(self.render_statistics()), title="User Stats")]))
-        else:
+        elif self.screen == "main":
             self.console.print(Panel(Columns([column1, column2, column3]), title="Command List"))
+        else:
+            self.console.print(Panel(Columns([column1, column2]), title="Command List"))
             
     
     def render_heading(self):
