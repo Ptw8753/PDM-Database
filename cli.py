@@ -534,7 +534,7 @@ Enter "quit" or "q" to """
         keyword = command[1] # if x is at least 2
         if x in [3, 5]:        # if x is 3 or 5
             songs_per_page = command[x-1]
-        if x == 4:              # if x is 4
+        if x in [4, 5]:              # if x is 4 or 5
             sort_attribute = command[2]
             sort_order = command[3]
         return (keyword, sort_attribute, sort_order, songs_per_page)

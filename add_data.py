@@ -17,10 +17,12 @@ playlist_buzzwords = ["Awesome", "Loud", "Beats", "Music", \
     "Dope", "Fun", "Sound", "Hype", "Chill", "Relax", \
     "Sleep", "Outstanding", "Best", "Huge", "Dance", \
     "Good", "Songs", "Fun", "Vibes", "Disco", "Sing",
-    "Mediocre", "Warm", "Coolest", "Noisy"]
+    "Mediocre", "Warm", "Coolest", "Noisy", "Greatest", \
+    "Bumpin", "Real", "Ultimate", "Superior", "Heat", "Fire", \
+    "Instrumental"]
 
 if __name__ == "__main__":
-    step = 2
+    step = 3
     
     # Sizes
     min_n_album_songs = 1
@@ -157,7 +159,7 @@ if __name__ == "__main__":
 
         n_users = 5000
         user_gen = random_user_generator()
-        
+        playlist_names_used = set()
         
         n_playlists = 0
         for user_id in range(n_users):
@@ -233,7 +235,11 @@ if __name__ == "__main__":
             for i in range(create_n_playlists):
                 n_songs = random.randint(1, 20)
                 song_ids = random.sample(range(len(preferred_songs)), k=n_songs)
-                playlist_name = "".join(random.sample(playlist_buzzwords, k=4))
+                while True:
+                    playlist_name = "".join(random.sample(playlist_buzzwords, k=4))
+                    if playlist_name not in playlist_names_used:
+                        playlist_names_used.add(playlist_name)
+                        break
                 playlist_id = n_playlists 
                 n_playlists += 1
                 playlist_date = max([preferred_song_listen_datetimes[s] for s in song_ids]).date()
@@ -256,14 +262,15 @@ if __name__ == "__main__":
     elif step == 3:
         
         # Get the user_ids in database
-        query = "select userid from users"
+        query = "select userid from users where userid < 5000 order by userid asc;"
         #queries.append(query)
-        user_ids = db.query(query)
+        user_ids = [t[0] for t in db.query(query)]
         
         for user_id in user_ids:
-            n_following = math.floor(np.random.normal(100, 50))
+            n_following = math.floor(np.random.normal(30, 15))
             if n_following <= 0: 
                 continue
+            print(user_id, n_following)
             follow_ids = random.sample(user_ids, k=n_following)
             for follow_id in follow_ids:
                 if user_id == follow_id:
