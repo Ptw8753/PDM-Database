@@ -268,7 +268,7 @@ class Interface:
     def getPlaylistSongNames(self, playlistid):
         songs = self.database.query(f'''
         select title from song where songid in 
-        (select song from playlistcontains where playlistcontains.playlistid = {playlistid}) 
+        (select songid from playlistcontains where playlistcontains.playlistid = {playlistid}) 
         ''')
 
         return songs
