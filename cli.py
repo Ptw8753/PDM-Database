@@ -88,7 +88,7 @@ class Cli:
         header = """# Principles of Data Management: Music Domain
 Enter "quit" or "q" to """
 
-        if self.screen in ["collections", "search"]:
+        if self.screen in ["collections", "search", "statistics"]:
             end = """return."""
         else:
             end = """exit."""
@@ -650,6 +650,10 @@ Enter "quit" or "q" to """
         pass
 
 
+    def genre_rankings(self):
+        pass
+
+
     def recommend(self):
         pass
 
@@ -738,6 +742,8 @@ Enter "quit" or "q" to """
                     self.global_songs(command)
                 elif (command[0] == "followerrankings"):
                     self.follower_songs(command)
+                elif (command[0] == "genrerankings"):
+                    self.genre_rankings(command)
                 elif (command[0] in ["recommendations", "recs"]):
                     self.recommend(command)
 
