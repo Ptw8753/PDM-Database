@@ -438,7 +438,7 @@ class Interface:
         return not self.isFollowing(userid, otherid)
 
     def getTop50Rolling(self):
-        songData = self.database.query('''
+        return self.top50SongMapping('''
         select genre.name, limitedResult.* from genre
         join songgenre on genre.genreid = songgenre.genreid
         join (select song.songid, song.title, artist.name, album.name, song.length, song.releasedate, AVG(userrating) as rating, subquery.numRatings as playcount
@@ -461,22 +461,44 @@ class Interface:
         LIMIT 50) as limitedResult on limitedResult.songid = songgenre.songid
         ''')
 
-        songs = dict()
+    def getTop50AmongFollowers(self, userid: int):
+        return self.top50SongMapping(f'''
+        select genre.name, limitedResult.* from genre
+        join songgenre on genre.genreid = songgenre.genreid
+        join (select song.songid, song.title, artist.name, album.name, song.length, song.releasedate, AVG(userrating) as rating, subquery.numRatings as playcount
+        from song
+        join songby on song.songid = songby.songid
+        join artist on songby.artistid = artist.artistid
+        join albumcontains on song.songid = albumcontains.songid
+        join album on albumcontains.albumid = album.albumid
+        join songgenre on song.songid = songgenre.songid
+        join genre on songgenre.genreid = genre.genreid
+        JOIN rates ON song.songid = rates.songid
+        JOIN listensto ON song.songid = listensto.songid
+        JOIN (SELECT songid, COUNT(songid) AS numRatings
+        FROM (select * from listensto
+        where userid in (select follows.userid from follows where followid = {userid})) as followerListens
+        GROUP BY songid) AS subquery ON song.songid = subquery.songid
+        GROUP BY song.songid, song.title, artist.name, album.name, song.length, song.releasedate, song.songid, subquery.numRatings
+        ORDER BY rating DESC, numRatings DESC
+        LIMIT 50) as limitedResult on limitedResult.songid = songgenre.songid
+        ''')
 
+    def top50SongMapping(self, queryString: str):
+        songData = self.database.query(queryString)
+        songs = dict()
         if songData is None:
             return songs
         for tuple in songData:
-
             songID = tuple[1]
             songTitle = tuple[2]
             artistName = tuple[3]
             albumName = tuple[4]
             genreName = tuple[0]
             length = tuple[5]
-            releaseDate = tuple[6] #useless :/
+            releaseDate = tuple[6]  # useless :/
             globalRating = tuple[7]
-            globalPlaycount = tuple[8] # TODO should this be user or global playcount?
-
+            globalPlaycount = tuple[8]  # TODO should this be user or global playcount?
             if songID in songs.keys():
                 s = songs.get(songID)
                 if albumName not in s.albumNames:
@@ -489,8 +511,7 @@ class Interface:
             else:
                 s = Song(songTitle, [artistName], [albumName], [genreName], length, globalPlaycount, globalRating)
                 songs[songID] = s
-
-        return songs.values() # return a list of song objects
+        return songs.values()  # return a list of song objects
 
     def rateSong(self, user_id: int, song_to_rate: str, rating: int):
         # check that rating is between 1 and 5
