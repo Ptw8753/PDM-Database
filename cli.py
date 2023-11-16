@@ -148,17 +148,20 @@ Enter "quit" or "q" to """
 
 
     def render_statistics(self):
-        column = """[bright_yellow]
-Total collections:
-"""
+        if self.login_id == None:
+            return ["Log in to see user statistics."]
 
-        self.interface.getCollectionCount()
+        columns = []
+        column = "\n[bright_yellow]  Total collections: "
+        column += (str(self.interface.getCollectionCount(self.login_id)))
+        column += "\n[bright_yellow]  Total followers: "
+        column += (str(self.interface.getFollowerCount(self.login_id)))
+        column += "\n[bright_yellow]  Total following: "
+        column += (str(self.interface.getFollowingCount(self.login_id)) + "\n")
 
+        columns.append(column)
+        return columns
 
-
-
-
-        
 
     def login(self, command):
         if len(command) != 3:
