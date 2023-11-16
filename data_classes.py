@@ -9,6 +9,7 @@ class Song:
     genres: list[str]
     length: int
     listenCount: int
+    rating: int
 
 @dataclass
 class User:

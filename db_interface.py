@@ -38,7 +38,7 @@ class Interface:
             return userId
 
         return userId
-    
+
 
     # checks if a username is in the users table.
     # returns true if the username is used.
@@ -47,8 +47,8 @@ class Interface:
             select userid from users where username = '{username}'                                  
             ''')
         return query != []
-    
-    
+
+
     def isPlaylistNameUsed(self, name: str):
         query = self.database.query(f'''
             select name from playlist where name = '{name}'
@@ -103,7 +103,7 @@ class Interface:
             return True
         else:
             return False
-        
+
 
     # required
     def createPlaylist(self, userid: str, name: str):
@@ -177,12 +177,12 @@ class Interface:
     # required
     def searchSongByTitle(self, keyword: str, sort="song.title", sort_type="ASC"):
         return self.search("song.title", keyword, sort, sort_type)
-    
+
 
     # required
     def searchSongByArtist(self, keyword: str, sort="song.title", sort_type="ASC"):
         return self.search("artist.name", keyword, sort, sort_type)
-    
+
 
     # required
     def searchSongByAlbum(self, keyword: str, sort="song.title", sort_type="ASC"):
@@ -205,7 +205,7 @@ class Interface:
             return result[0][0]
         else:
             return None
-    
+
 
     def getSongId(self, name):
         songid = self.database.query(f'''
@@ -217,7 +217,7 @@ class Interface:
             return songid[0][0]
         else:
             return None
-        
+
 
     def getAlbumId(self, name):
         albumid = self.database.query(f'''
@@ -229,15 +229,15 @@ class Interface:
             return albumid[0][0]
         else:
             return None
-        
-    
+
+
     def getAlbumSongs(self, albumid):
         songs = self.database.query(f'''
         select songid from albumcontains where albumcontains.albumid = {albumid} 
         ''')
 
         return songs
-    
+
 
     def getPlaylistSongNames(self, playlistid):
         songs = self.database.query(f'''
@@ -246,7 +246,7 @@ class Interface:
         ''')
 
         return songs
-    
+
 
     def getPlaylistSongTotal(self, playlistid):
         songs = self.database.query(f'''
@@ -255,7 +255,7 @@ class Interface:
         ''')
 
         return songs
-    
+
 
     def getPlaylistDuration(self, playlistid):
         duration = self.database.query(f'''
@@ -277,7 +277,7 @@ class Interface:
 
 
     # required
-    def addSongToPlaylist(self, playlistid, song_name):        
+    def addSongToPlaylist(self, playlistid, song_name):
         songid = self.getSongId(song_name)
         if songid == None:
             return False
@@ -294,9 +294,9 @@ class Interface:
         albumid = self.getAlbumId(name)
         if albumid == None:
             return False
-        
+
         songs = self.getAlbumSongs(albumid)
-        
+
         for song in songs:
             songid = song[0]
 
@@ -353,9 +353,9 @@ class Interface:
 
         if playlist_id == None:
             return False
-        
+
         self.clearPlaylist(playlist_id)
-        
+
         self.database.query(f'''
         delete from playlist where 
         playlist.playlistid = {playlist_id} and
@@ -400,7 +400,7 @@ class Interface:
         for song in songs:
             self.addPlayedSong(user_id, song[0])
 
-    
+
     # returns true if user w/ id is following user with otherid
     def isFollowing(self, id: int, otherid: int):
         query = self.database.query(f'''
@@ -423,7 +423,7 @@ class Interface:
             values('{userid}', '{otherid}')
             ''')
         return self.isFollowing(userid, otherid)
-    
+
 
     # unfollow a user by giving their email
     # return success T/F
@@ -437,12 +437,66 @@ class Interface:
             ''')
         return not self.isFollowing(userid, otherid)
 
+    def getTop50Rolling(self):
+        songData = self.database.query('''
+        select genre.name, limitedResult.* from genre
+        join songgenre on genre.genreid = songgenre.genreid
+        join (select song.songid, song.title, artist.name, album.name, song.length, song.releasedate, AVG(userrating) as rating, subquery.numRatings as playcount
+        from song
+        join songby on song.songid = songby.songid
+        join artist on songby.artistid = artist.artistid
+        join albumcontains on song.songid = albumcontains.songid
+        join album on albumcontains.albumid = album.albumid
+        join songgenre on song.songid = songgenre.songid
+        join genre on songgenre.genreid = genre.genreid
+        JOIN rates ON song.songid = rates.songid
+        JOIN listensto ON song.songid = listensto.songid
+        JOIN (SELECT songid, COUNT(songid) AS numRatings
+        FROM listensto
+        WHERE listendate > CURRENT_DATE - INTERVAL '50 days'
+        GROUP BY songid) AS subquery ON song.songid = subquery.songid
+        WHERE listendate > CURRENT_DATE - INTERVAL '50 days'
+        GROUP BY song.songid, song.title, artist.name, album.name, song.length, song.releasedate, song.songid, subquery.numRatings
+        ORDER BY rating DESC, numRatings DESC
+        LIMIT 50) as limitedResult on limitedResult.songid = songgenre.songid
+        ''')
+
+        songs = dict()
+
+        if songData is None:
+            return songs
+        for tuple in songData:
+
+            songID = tuple[1]
+            songTitle = tuple[2]
+            artistName = tuple[3]
+            albumName = tuple[4]
+            genreName = tuple[0]
+            length = tuple[5]
+            releaseDate = tuple[6] #useless :/
+            globalRating = tuple[7]
+            globalPlaycount = tuple[8] # TODO should this be user or global playcount?
+
+            if songID in songs.keys():
+                s = songs.get(songID)
+                if albumName not in s.albumNames:
+                    s.albumNames.append(albumName)
+                if genreName not in s.genres:
+                    s.genres.append(genreName)
+                if artistName not in s.artistNames:
+                    s.artistNames.append(artistName)
+                songs[songID] = s
+            else:
+                s = Song(songTitle, [artistName], [albumName], [genreName], length, globalPlaycount, globalRating)
+                songs[songID] = s
+
+        return songs.values() # return a list of song objects
 
     def rateSong(self, user_id: int, song_to_rate: str, rating: int):
         # check that rating is between 1 and 5
         if rating not in [1,2,3,4,5]:
             return False
-        
+
         #get the song id to rate
         song_id = self.database.query(f'''select songid from song where title = '{song_to_rate}' ''')[0][0]
 
