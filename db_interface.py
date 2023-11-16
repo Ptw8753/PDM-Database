@@ -166,7 +166,8 @@ class Interface:
                     s.artistNames.append(artistName)
                 songs[songID] = s
             else:
-                s = Song(songTitle, [artistName], [albumName], [genreName], length, globalPlaycount)
+                s = Song(title=songTitle, artistNames=[artistName], albumNames=[albumName], genres=[genreName],
+                         length=length, listenCount=globalPlaycount, rating=0)
                 songs[songID] = s
 
         return songs.values() # return a list of song objects
@@ -554,7 +555,7 @@ class Interface:
     def getFollowerCount(self, user_id):
         count = self.database.query(f'''
         select count(followid) from follows where
-        follows.userid = {user_id}
+        follows.followid = {user_id}
         ''')
 
         return count[0][0]
