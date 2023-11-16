@@ -453,12 +453,12 @@ class Interface:
         JOIN listensto ON song.songid = listensto.songid
         JOIN (SELECT songid, COUNT(songid) AS numRatings
         FROM listensto
-        WHERE listendate > CURRENT_DATE - INTERVAL '50 days'
+        WHERE listendate > CURRENT_DATE - INTERVAL '30 days'
         GROUP BY songid) AS subquery ON song.songid = subquery.songid
-        WHERE listendate > CURRENT_DATE - INTERVAL '50 days'
+        WHERE listendate > CURRENT_DATE - INTERVAL '30 days'
         GROUP BY song.songid, song.title, artist.name, album.name, song.length, song.releasedate, song.songid, subquery.numRatings
         ORDER BY rating DESC, numRatings DESC
-        LIMIT 50) as limitedResult on limitedResult.songid = songgenre.songid
+        LIMIT 30) as limitedResult on limitedResult.songid = songgenre.songid
         ''')
 
     def getTop50AmongFollowers(self, userid: int):
