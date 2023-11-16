@@ -520,7 +520,7 @@ class Interface:
         return self.database.query(self,f'''select artist.name, limitedResult.* from artist
 join songby on artist.artistid = songby.artistid
 join rates on songby.songid = rates.songid
-join (select AVG(userrating) as rating from rates where rates.userid = BigUser ORDER BY rating DESC
+join (select AVG(userrating) as rating from rates where rates.userid = {BigUser} ORDER BY rating DESC
 LIMIT 10)
 as limitedResult on limitedResult.rating = ...?''')
 
