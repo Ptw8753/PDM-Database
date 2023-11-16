@@ -442,7 +442,7 @@ class Interface:
         return self.top50SongMapping('''
         select genre.name, limitedResult.* from genre
         join songgenre on genre.genreid = songgenre.genreid
-        join (select song.songid, song.title, artist.name, album.name, song.length, song.releasedate, AVG(userrating) as rating, subquery.numRatings as playcount
+        join (select song.songid, song.title, artist.name, album.name, song.length, song.releasedate, subquery.numRatings as playcount
         from song
         join songby on song.songid = songby.songid
         join artist on songby.artistid = artist.artistid
@@ -458,7 +458,7 @@ class Interface:
         GROUP BY songid) AS subquery ON song.songid = subquery.songid
         WHERE listendate > CURRENT_DATE - INTERVAL '30 days'
         GROUP BY song.songid, song.title, artist.name, album.name, song.length, song.releasedate, song.songid, subquery.numRatings
-        ORDER BY rating DESC, numRatings DESC
+        ORDER BY numRatings DESC
         LIMIT 30) as limitedResult on limitedResult.songid = songgenre.songid
         ''')
 
@@ -466,7 +466,7 @@ class Interface:
         return self.top50SongMapping(f'''
         select genre.name, limitedResult.* from genre
         join songgenre on genre.genreid = songgenre.genreid
-        join (select song.songid, song.title, artist.name, album.name, song.length, song.releasedate, AVG(userrating) as rating, subquery.numRatings as playcount
+        join (select song.songid, song.title, artist.name, album.name, song.length, song.releasedate, subquery.numRatings as playcount
         from song
         join songby on song.songid = songby.songid
         join artist on songby.artistid = artist.artistid
@@ -481,7 +481,7 @@ class Interface:
         where userid in (select follows.userid from follows where followid = {userid})) as followerListens
         GROUP BY songid) AS subquery ON song.songid = subquery.songid
         GROUP BY song.songid, song.title, artist.name, album.name, song.length, song.releasedate, song.songid, subquery.numRatings
-        ORDER BY rating DESC, numRatings DESC
+        ORDER BY numRatings DESC
         LIMIT 50) as limitedResult on limitedResult.songid = songgenre.songid
         ''')
 
@@ -513,6 +513,16 @@ class Interface:
                 s = Song(songTitle, [artistName], [albumName], [genreName], length, globalPlaycount, globalRating)
                 songs[songID] = s
         return list(songs.values())  # return a list of song objects
+
+    def top10ArtistForUser(self,BigUser: int):
+        #TODO
+        pass
+        return self.database.query(self,f'''select artist.name, limitedResult.* from artist
+join songby on artist.artistid = songby.artistid
+join rates on songby.songid = rates.songid
+join (select AVG(userrating) as rating from rates where rates.userid = {BigUser} ORDER BY rating DESC
+LIMIT 10)
+as limitedResult on limitedResult.rating = ...?''')
 
     def rateSong(self, user_id: int, song_to_rate: str, rating: int):
         # check that rating is between 1 and 5
