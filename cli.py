@@ -545,7 +545,7 @@ Enter "quit" or "q" to """
         x = len(command)
         if x not in [2, 3, 4, 5]:
             self.invalid_search()
-            return
+            return (keyword, sort_attribute, sort_order, songs_per_page)
         keyword = command[1] # if x is at least 2
         if x in [3, 5]:        # if x is 3 or 5
             songs_per_page = command[x-1]
