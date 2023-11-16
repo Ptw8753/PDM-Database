@@ -493,7 +493,9 @@ Enter "quit" or "q" to """
     def nice_print(self, songList, keyword, songsPerPage=15):
         numSongs = len(songList)
 
-        self.console.print(f"Search Complete!\n{len(songList)} songs found with keyword: '{keyword}'")
+        if keyword != None:
+            self.console.print(f"Search Complete!\n{len(songList)} songs found with keyword: '{keyword}'")
+        
         self.console.input("Press enter to view results...")
         self.console.clear()
 
@@ -652,8 +654,9 @@ Enter "quit" or "q" to """
             self.console.input(f"Unable to find song: {song}\nPress enter to continue...")
 
 
-    def global_songs(self):
-        pass
+    def global_songs(self, command):
+        songs = self.interface.getTop50Rolling()
+        self.nice_print(songs, None, 10)
 
 
     def follower_songs(self):

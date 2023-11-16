@@ -554,7 +554,7 @@ class Interface:
     def getFollowerCount(self, user_id):
         count = self.database.query(f'''
         select count(followid) from follows where
-        follows.userid = {user_id}
+        follows.followid = {user_id}
         ''')
 
         return count[0][0]
