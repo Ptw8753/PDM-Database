@@ -511,7 +511,7 @@ class Interface:
             else:
                 s = Song(songTitle, [artistName], [albumName], [genreName], length, globalPlaycount, globalRating)
                 songs[songID] = s
-        return songs.values()  # return a list of song objects
+        return list(songs.values())  # return a list of song objects
 
     def rateSong(self, user_id: int, song_to_rate: str, rating: int):
         # check that rating is between 1 and 5
