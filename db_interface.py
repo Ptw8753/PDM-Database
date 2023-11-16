@@ -522,7 +522,30 @@ class Interface:
 
 
     def getCollectionCount(self, user_id):
-        pass
+        count = self.database.query(f'''
+        select count(playlistid) from playlist where
+        playlist.userid = {user_id}
+        ''')
+
+        return count[0][0]
+
+
+    def getFollowerCount(self, user_id):
+        count = self.database.query(f'''
+        select count(followid) from follows where
+        follows.userid = {user_id}
+        ''')
+
+        return count[0][0]
+        
+
+    def getFollowingCount(self, user_id):
+        count = self.database.query(f'''
+        select count(userid) from follows where
+        follows.userid = {user_id}
+        ''')
+
+        return count[0][0]
 
 
     #get next id functions create a new id greater than the max found in the database
