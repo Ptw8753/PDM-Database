@@ -20,3 +20,8 @@ class User:
     email: str
     creationDate: date
     lastAccess: datetime
+
+@dataclass
+class TopGenre:
+    genreName: str
+    listenCount: int

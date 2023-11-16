@@ -514,6 +514,24 @@ class Interface:
                 songs[songID] = s
         return list(songs.values())  # return a list of song objects
 
+    def getTop10Genres(self):
+        genres = self.database.query('''
+        select genre.name, count(listensto) as numPlays
+        from genre
+        join songgenre on genre.genreid = songgenre.genreid
+        join listensto on songgenre.songid = listensto.songid
+        where extract(year from listendate) = extract(year from CURRENT_DATE)
+        and extract(month from listendate) = extract(month from CURRENT_DATE)
+        group by genre.name
+        order by numPlays desc 
+        ''')
+        topGenres = []
+        for tuple in genres:
+            topGenres.append(TopGenre(genreName=tuple[0], listenCount=tuple[1]))
+        return topGenres
+
+
+
     def rateSong(self, user_id: int, song_to_rate: str, rating: int):
         # check that rating is between 1 and 5
         if rating not in [1,2,3,4,5]:
