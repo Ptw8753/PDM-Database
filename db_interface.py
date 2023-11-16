@@ -127,32 +127,6 @@ class Interface:
         return collections
 
 
-    # I DONT THINK THIS ONE WILL WORK, USE search() BELOW 
-    #helper function to reduce duplicate code
-    def executeSongQueryWithWhereClause(self, where: str) -> str:
-        query = f'''
-        select song.title, artist.name, album.name, song.length, count(song.songid)
-        from song
-        join songby on song.songid = songby.songid
-        join artist on songby.artistid = artist.artistid
-        join albumcontains on song.songid = albumcontains.songid
-        join album on albumcontains.albumid = album.albumid
-        left join listensto on song.songid = listensto.songid
-        {where}
-        group by song.title, artist.name, album.name, song.length
-        '''
-
-        songData = self.database.query(query)
-        albums = []
-        for song in songData:
-            albums.append(song[2])
-
-        song = Song(title=songData[0][0], artistName=songData[0][1], albumNames = albums, length=songData[0][3], listenCount=songData[0][4])
-        print(song)
-        return song
-        #populate song here
-
-
     def search(self, attribute: str, keyword: str, sort: str, sort_type: str):
         songs = dict()
         songData = self.database.query(f'''
@@ -463,6 +437,7 @@ class Interface:
             ''')
         return not self.isFollowing(userid, otherid)
 
+
     def rateSong(self, user_id: int, song_to_rate: str, rating: int):
         # check that rating is between 1 and 5
         if rating not in [1,2,3,4,5]:
@@ -490,6 +465,11 @@ class Interface:
 
     def isExistingRating(self, user_id: int, song_id: int):
         return not self.database.query(f'''select * from rates where userid = {user_id} and songid = {song_id} ''') == []
+
+
+    def getCollectionCount(self, user_id):
+        pass
+
 
     #get next id functions create a new id greater than the max found in the database
     def generateIdForTable(self, tableName: str) -> str:

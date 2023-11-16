@@ -148,9 +148,16 @@ Enter "quit" or "q" to """
 
 
     def render_statistics(self):
-        columns = []
-        column = "[bright_green]"
-        line_start = "* "
+        column = """[bright_yellow]
+Total collections:
+"""
+
+        self.interface.getCollectionCount()
+
+
+
+
+
         
 
     def login(self, command):
