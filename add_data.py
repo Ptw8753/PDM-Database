@@ -2,6 +2,8 @@ import json
 from random_functions import *
 from database import Database
 import numpy as np
+import pandas as pd
+from math import *
 
 possible_genre_combinations = [ 
     ["Rap"], ["Reggae"], ["Country"], 
@@ -279,6 +281,86 @@ if __name__ == "__main__":
                 query = "insert into follows (userid, followid) values ({}, {})".format(user_id, follow_id)
                 #queries.append(query)
                 db.query(query)
+                
+    elif step == 4:
+        
+        query = "select artistid from artist"
+        #queries.append(query)
+        res = db.query(query)
+        artist_ids = [a[0] for a in res]
+        
+        query = "select userid from users"
+        #queries.append(query)
+        res = db.query(query)
+        user_ids = [u[0] for u in res]
+        
+        date = datetime.datetime(2023, 11, 16)
+        for user_id in user_ids:
+            query = "update users set lastaccessdate = '{}' where userid = {}".format(python_datetime_to_sql(date), user_id)
+            #queries.append(query)
+            db.query(query)
+        
+        n_groups = 200
+        max = 150000
+        min = 1000
+        median = 12000
+        Xs = np.linspace((median * median) / max, (median * median) / min, n_groups)
+        Ys = np.zeros(n_groups)
+        for i in range(len(Xs)):
+            x = Xs[i]
+            Ys[i] = floor((median * median) / x)
+            
+        random.shuffle(artist_ids)
+        start_indices = [floor(i) for i in np.linspace(0, len(artist_ids), n_groups + 1) if i != len(artist_ids)]
+        start_indices.append(len(artist_ids) - 1)
+
+        next_start_index = 1
+        seen_song_ids = set()
+        for i in range(len(artist_ids)):
+            
+            print("Artist ({} / {})".format(i + 1, len(artist_ids)))
+            
+            artist_id = artist_ids[i]
+            if i >= start_indices[next_start_index]:
+                if next_start_index < len(start_indices) - 1:
+                    next_start_index += 1
+            mean_n_views = Ys[next_start_index - 1]
+            
+            query = "select songid from songby where artistid = {}".format(artist_id)
+            #queries.append(query)
+            res = db.query(query)
+            song_ids = [s[0] for s in res]
+            
+            j = 0
+            for song_id in song_ids:
+                print("Song ({} / {})".format(j + 1, len(song_ids)))
+                if song_id in seen_song_ids:
+                    continue
+                seen_song_ids.add(song_id)
+                
+                n_views = np.random.normal(float(mean_n_views), mean_n_views / 6)
+                n_views = floor(n_views)
+                if n_views <= 0: continue
+                print("k = {}".format(n_views))
+                
+                start = pd.Timestamp('2023-11-1')
+                end = pd.Timestamp('2023-11-16')
+                t = np.linspace(start.value, end.value, n_views)
+                t = pd.to_datetime(t)
+                
+                k = 0
+                for user_id in random.choices(user_ids, k=n_views):
+                    
+                    date = t[k]
+                    query = "insert into listensto (userid, songid, listendate) values ({}, {}, '{}')".format(user_id, song_id, python_datetime_to_sql(date))
+                    #queries.append(query)
+                    db.query(query)
+                    
+                    k += 1
+                        
+                j += 1
+                
+                
         
         
         
