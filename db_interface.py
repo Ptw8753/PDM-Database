@@ -459,7 +459,7 @@ class Interface:
         WHERE listendate > CURRENT_DATE - INTERVAL '30 days'
         GROUP BY song.songid, song.title, artist.name, album.name, song.length, song.releasedate, song.songid, subquery.numRatings
         ORDER BY numRatings DESC
-        LIMIT 30) as limitedResult on limitedResult.songid = songgenre.songid
+        LIMIT 50) as limitedResult on limitedResult.songid = songgenre.songid
         ''')
 
     def getTop50AmongFollowers(self, userid: int):
@@ -483,6 +483,7 @@ class Interface:
         GROUP BY song.songid, song.title, artist.name, album.name, song.length, song.releasedate, song.songid, subquery.numRatings
         ORDER BY numRatings DESC
         LIMIT 50) as limitedResult on limitedResult.songid = songgenre.songid
+        ORDER BY limitedResult.playcount DESC
         ''')
 
     def top50SongMapping(self, queryString: str):
@@ -530,13 +531,15 @@ class Interface:
             topGenres.append(TopGenre(genreName=tuple[0], listenCount=tuple[1]))
         return topGenres
 
-    def reccomendSongs(self):
-        #get genres and artists listened to,
+    def recommendSongs(self):
+        #get genres and artists listened to, recommends 5 from your artist, and 5 from followers
 
-        def top10ArtistForUser(self, BigUser: int):
-            # TODO
-            pass
-            return self.database.query(self, f'''select artist.name, limitedResult.* from artist
+        pass
+
+    def top10ArtistForUser(self, BigUser: int):
+        # TODO
+        pass
+        return self.database.query(self, f'''select artist.name, limitedResult.* from artist
     join songby on artist.artistid = songby.artistid
     join rates on songby.songid = rates.songid
     join (select AVG(userrating) as rating from rates where rates.userid = {BigUser} ORDER BY rating DESC

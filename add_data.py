@@ -325,11 +325,11 @@ if __name__ == "__main__":
                 if next_start_index < len(start_indices) - 1:
                     next_start_index += 1
             mean_n_views = Ys[next_start_index - 1]
-            
+                    
             query = "select songid from songby where artistid = {}".format(artist_id)
             #queries.append(query)
             res = db.query(query)
-            song_ids = [s[0] for s in res]
+            song_ids = [s[0] for s in res][:1]
             
             j = 0
             for song_id in song_ids:
@@ -338,7 +338,7 @@ if __name__ == "__main__":
                     continue
                 seen_song_ids.add(song_id)
                 
-                n_views = np.random.normal(float(mean_n_views / 50), mean_n_views / 300)
+                n_views = np.random.normal(float(mean_n_views) / 50, mean_n_views / 300)
                 n_views = floor(n_views)
                 if n_views <= 0: continue
                 print("k = {}".format(n_views))
