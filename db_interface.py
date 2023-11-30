@@ -498,8 +498,7 @@ class Interface:
             albumName = tuple[4]
             length = tuple[5]
             releaseDate = tuple[6]  # useless :/
-            globalRating = tuple[7]
-            globalPlaycount = tuple[8]  # TODO should this be user or global playcount?
+            globalPlaycount = tuple[7]  # TODO should this be user or global playcount?
             if songID in songs.keys():
                 s = songs.get(songID)
                 if albumName not in s.albumNames:
@@ -510,7 +509,7 @@ class Interface:
                     s.artistNames.append(artistName)
                 songs[songID] = s
             else:
-                s = Song(songTitle, [artistName], [albumName], [genreName], length, globalPlaycount, globalRating)
+                s = Song(songTitle, [artistName], [albumName], [genreName], length, globalPlaycount)
                 songs[songID] = s
         return list(songs.values())  # return a list of song objects
 
