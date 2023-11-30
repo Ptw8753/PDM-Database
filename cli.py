@@ -659,15 +659,15 @@ Enter "quit" or "q" to """
         self.nice_print(songs, None, 10)
 
 
-    def follower_songs(self):
+    def follower_songs(self, command):
         pass
 
 
-    def genre_rankings(self):
+    def genre_rankings(self, command):
         pass
 
 
-    def recommend(self):
+    def recommend(self, command):
         pass
 
 
