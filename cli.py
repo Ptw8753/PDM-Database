@@ -689,6 +689,20 @@ Enter "quit" or "q" to """
             self.console.print("Bulding a list of songs based on your most played songs...")
             self.nice_print(songs, None, 10)
 
+    
+    def topartists(self, command):
+        if self.login_id == None:
+            self.console.print("Log in to see your top artists.") 
+            self.console.input("Press enter to continue...")
+        else:
+            artists = self.interface.top10ArtistForUser(self.login_id)
+            i = 1
+            print("Your top artists:")
+            for artist in artists:
+                print(str(i) + ".\t" + str(artist[0]))
+                i += 1
+            self.console.input("Press enter to continue...")
+
 
     def input_loop(self):
         input_str = "null"
@@ -778,6 +792,8 @@ Enter "quit" or "q" to """
                     self.genre_rankings(command)
                 elif (command[0] in ["recommendations", "recs"]):
                     self.recommend(command)
+                elif (command[0] == "topartists"):
+                    self.topartists(command)
 
             if (command[0]) in ["quit", "q"]:
                 if self.screen in ["collections", "search", "statistics"]:
