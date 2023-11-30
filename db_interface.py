@@ -514,7 +514,7 @@ class Interface:
                 songs[songID] = s
         return list(songs.values())  # return a list of song objects
 
-    def getTop10Genres(self):
+    def getTop5Genres(self):
         genres = self.database.query('''
         select genre.name, count(listensto) as numPlays
         from genre
@@ -524,6 +524,7 @@ class Interface:
         and extract(month from listendate) = extract(month from CURRENT_DATE)
         group by genre.name
         order by numPlays desc 
+        limit 5
         ''')
         topGenres = []
         for tuple in genres:
