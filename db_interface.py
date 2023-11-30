@@ -531,38 +531,22 @@ class Interface:
             topGenres.append(TopGenre(genreName=tuple[0], listenCount=tuple[1]))
         return topGenres
 
-    def recommendSongs(self, user_id: int):
-        return self.top50SongMapping(f'''
-        select genre.name, songQuery.songid, title, artist.name, album.name, song.length, song.releasedate, songQuery.count
-        from (select songid, count(songid) as count
-        from(select userid, songid from listensto where songid in (select songid from listensto
-        except
-        select songid from listensto
-        where userid = {user_id})) as listenExclusive
-        join follows on listenExclusive.userid = follows.userid
-        where followid = {user_id}
-        group by songid
-        order by count desc) as songQuery
-        join song on song.songid = songQuery.songid
-        join songGenre on songgenre.songid = songQuery.songid
-        join genre on genre.genreid = songGenre.genreid
-        join songby on songby.songid = songQuery.songid
-        join artist on artist.artistid = songby.artistid
-        join albumcontains on albumcontains.songid = songQuery.songid
-        join album on album.albumid = albumcontains.albumid
-        order by count desc
-        limit 10
-        ''')
+    def recommendSongs(self):
+        #get genres and artists listened to, recommends 5 from your artist, and 5 from followers
+
+        pass
 
     def top10ArtistForUser(self, BigUser: int):
         # TODO
-        pass
-        return self.database.query(self, f'''select artist.name, limitedResult.* from artist
-    join songby on artist.artistid = songby.artistid
-    join rates on songby.songid = rates.songid
-    join (select AVG(userrating) as rating from rates where rates.userid = {BigUser} ORDER BY rating DESC
-    LIMIT 10)
-    as limitedResult on limitedResult.rating = ...?''')
+        return self.database.query(self, f'''select artist.name from listensto
+join users on listensto.userid = users.userid
+join song on listensto.songid = song.songid
+join songby on song.songid = songby.songid
+join artist on songby.artistid = artist.artistid
+where users.userid = {BigUser}
+group by artist.name
+order by count(artist.name) DESC
+LIMIT 10''')
 
     def rateSong(self, user_id: int, song_to_rate: str, rating: int):
         # check that rating is between 1 and 5
