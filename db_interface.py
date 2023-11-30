@@ -520,10 +520,10 @@ class Interface:
         from genre
         join songgenre on genre.genreid = songgenre.genreid
         join listensto on songgenre.songid = listensto.songid
-        where extract(year from listendate) = extract(year from CURRENT_DATE)
-        and extract(month from listendate) = extract(month from CURRENT_DATE)
+        where listendate >= date_trunc('month', current_date)
+        and listendate < date_trunc('month', current_date) + interval '1 month'
         group by genre.name
-        order by numPlays desc 
+        order by numPlays desc
         limit 5
         ''')
         topGenres = []
@@ -531,14 +531,31 @@ class Interface:
             topGenres.append(TopGenre(genreName=tuple[0], listenCount=tuple[1]))
         return topGenres
 
-    def recommendSongs(self):
-        #get genres and artists listened to, recommends 5 from your artist, and 5 from followers
-
-        pass
-
+    def recommendSongs(self, user_id):
+        return self.top50SongMapping(f'''
+        select genre.name, songQuery.songid, title, artist.name, album.name, song.length, song.releasedate, songQuery.count
+        from (select songid, count(songid) as count
+        from(select userid, songid from listensto where songid in (select songid from listensto
+        except
+        select songid from listensto
+        where userid = {user_id})) as listenExclusive
+        join follows on listenExclusive.userid = follows.userid
+        where followid = {user_id}
+        group by songid
+        order by count desc) as songQuery
+        join song on song.songid = songQuery.songid
+        join songGenre on songgenre.songid = songQuery.songid
+        join genre on genre.genreid = songGenre.genreid
+        join songby on songby.songid = songQuery.songid
+        join artist on artist.artistid = songby.artistid
+        join albumcontains on albumcontains.songid = songQuery.songid
+        join album on album.albumid = albumcontains.albumid
+        order by count desc
+        limit 10
+        ''')
     def top10ArtistForUser(self, BigUser: int):
         # TODO
-        return self.database.query(self, f'''select artist.name from listensto
+        return self.database.query(f'''select artist.name from listensto
 join users on listensto.userid = users.userid
 join song on listensto.songid = song.songid
 join songby on song.songid = songby.songid
