@@ -438,6 +438,7 @@ class Interface:
             ''')
         return not self.isFollowing(userid, otherid)
 
+
     def getTop50Rolling(self):
         return self.top50SongMapping('''
         select genre.name, limitedResult.* from genre
