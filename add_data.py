@@ -338,13 +338,13 @@ if __name__ == "__main__":
                     continue
                 seen_song_ids.add(song_id)
                 
-                n_views = np.random.normal(float(mean_n_views), mean_n_views / 6)
+                n_views = np.random.normal(float(mean_n_views / 50), mean_n_views / 300)
                 n_views = floor(n_views)
                 if n_views <= 0: continue
                 print("k = {}".format(n_views))
                 
                 start = pd.Timestamp('2023-11-1')
-                end = pd.Timestamp('2023-11-16')
+                end = pd.Timestamp('2023-11-30')
                 t = np.linspace(start.value, end.value, n_views)
                 t = pd.to_datetime(t)
                 

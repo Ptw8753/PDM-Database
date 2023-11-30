@@ -665,7 +665,14 @@ Enter "quit" or "q" to """
 
 
     def genre_rankings(self, command):
-        pass
+        genres = self.interface.getTop5Genres()
+        i = 1
+        print("Top genres in the past month:")
+        for genre in genres:
+            print(str(i) + ". " + str(genre.genreName))
+            print("   Total plays:" + str(genre.listenCount) + "\n")
+            i += 1
+        self.console.input("Press enter to continue...")
 
 
     def recommend(self, command):
@@ -756,7 +763,7 @@ Enter "quit" or "q" to """
                     self.global_songs(command)
                 elif (command[0] == "followerrankings"):
                     self.follower_songs(command)
-                elif (command[0] == "genrerankings"):
+                elif (command[0] == "topgenres"):
                     self.genre_rankings(command)
                 elif (command[0] in ["recommendations", "recs"]):
                     self.recommend(command)
