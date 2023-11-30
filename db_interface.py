@@ -531,7 +531,15 @@ class Interface:
             topGenres.append(TopGenre(genreName=tuple[0], listenCount=tuple[1]))
         return topGenres
 
-
+        def top10ArtistForUser(self, BigUser: int):
+            # TODO
+            pass
+            return self.database.query(self, f'''select artist.name, limitedResult.* from artist
+    join songby on artist.artistid = songby.artistid
+    join rates on songby.songid = rates.songid
+    join (select AVG(userrating) as rating from rates where rates.userid = {BigUser} ORDER BY rating DESC
+    LIMIT 10)
+    as limitedResult on limitedResult.rating = ...?''')
 
     def rateSong(self, user_id: int, song_to_rate: str, rating: int):
         # check that rating is between 1 and 5
@@ -578,7 +586,7 @@ class Interface:
         ''')
 
         return count[0][0]
-        
+
 
     def getFollowingCount(self, user_id):
         count = self.database.query(f'''
