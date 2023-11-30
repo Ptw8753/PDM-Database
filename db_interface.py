@@ -514,15 +514,24 @@ class Interface:
                 songs[songID] = s
         return list(songs.values())  # return a list of song objects
 
-    def top10ArtistForUser(self,BigUser: int):
-        #TODO
-        pass
-        return self.database.query(self,f'''select artist.name, limitedResult.* from artist
-join songby on artist.artistid = songby.artistid
-join rates on songby.songid = rates.songid
-join (select AVG(userrating) as rating from rates where rates.userid = {BigUser} ORDER BY rating DESC
-LIMIT 10)
-as limitedResult on limitedResult.rating = ...?''')
+    def getTop5Genres(self):
+        genres = self.database.query('''
+        select genre.name, count(listensto) as numPlays
+        from genre
+        join songgenre on genre.genreid = songgenre.genreid
+        join listensto on songgenre.songid = listensto.songid
+        where extract(year from listendate) = extract(year from CURRENT_DATE)
+        and extract(month from listendate) = extract(month from CURRENT_DATE)
+        group by genre.name
+        order by numPlays desc 
+        limit 5
+        ''')
+        topGenres = []
+        for tuple in genres:
+            topGenres.append(TopGenre(genreName=tuple[0], listenCount=tuple[1]))
+        return topGenres
+
+
 
     def rateSong(self, user_id: int, song_to_rate: str, rating: int):
         # check that rating is between 1 and 5
