@@ -660,7 +660,8 @@ Enter "quit" or "q" to """
 
 
     def follower_songs(self, command):
-        pass
+        songs = self.interface.getTop50AmongFollowers(self.login_id)
+        self.nice_print(songs, None, 10)
 
 
     def genre_rankings(self, command):
