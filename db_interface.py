@@ -491,11 +491,11 @@ class Interface:
         if songData is None:
             return songs
         for tuple in songData:
+            genreName = tuple[0]
             songID = tuple[1]
             songTitle = tuple[2]
             artistName = tuple[3]
             albumName = tuple[4]
-            genreName = tuple[0]
             length = tuple[5]
             releaseDate = tuple[6]  # useless :/
             globalRating = tuple[7]
@@ -530,6 +530,9 @@ class Interface:
         for tuple in genres:
             topGenres.append(TopGenre(genreName=tuple[0], listenCount=tuple[1]))
         return topGenres
+
+    def reccomendSongs(self):
+        #get genres and artists listened to,
 
         def top10ArtistForUser(self, BigUser: int):
             # TODO
