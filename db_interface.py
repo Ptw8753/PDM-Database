@@ -438,6 +438,7 @@ class Interface:
             ''')
         return not self.isFollowing(userid, otherid)
 
+
     def getTop50Rolling(self):
         return self.top50SongMapping('''
         select genre.name, limitedResult.* from genre
@@ -589,13 +590,13 @@ class Interface:
         result += top_10_from_artists
         return result
 
-    def top10ArtistForUser(self, BigUser: int):
+    def top10ArtistForUser(self, user: int):
         return self.database.query(f'''select artist.name from listensto
         join users on listensto.userid = users.userid
         join song on listensto.songid = song.songid
         join songby on song.songid = songby.songid
         join artist on songby.artistid = artist.artistid
-        where users.userid = {BigUser}
+        where users.userid = {user}
         group by artist.name
         order by count(artist.name) DESC
         LIMIT 10''')

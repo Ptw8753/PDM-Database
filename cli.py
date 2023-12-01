@@ -23,17 +23,17 @@ class Cli:
             column1 ="""[bright_green]
 * login \[username] \[password]  
 * signup  
-* collections  
-* search
+* listen \[songname] or \[albumname]  
 """
             column2 ="""[bright_green]
-* listen \[songname] or \[albumname]  
 * rate \[songname] \[rating (1-5)]   
 * follow \[useremail]  
 * unfollow \[useremail]  
 """
             column3 ="""[bright_green]
 * statistics
+* collections  
+* search
 """
 
         elif self.screen == "collections":
@@ -66,6 +66,7 @@ class Cli:
 * followerrankings
 * topgenres 
 * recommendations
+* topartists
 """
 
             column2 =""""""
@@ -660,8 +661,12 @@ Enter "quit" or "q" to """
 
 
     def follower_songs(self, command):
-        songs = self.interface.getTop50AmongFollowers(self.login_id)
-        self.nice_print(songs, None, 10)
+        if self.login_id == None:
+            self.console.print("Log in to see the top songs from your followers.") 
+            self.console.input("Press enter to continue...")
+        else:
+            songs = self.interface.getTop50AmongFollowers(self.login_id)
+            self.nice_print(songs, None, 10)
 
 
     def genre_rankings(self, command):
@@ -670,13 +675,33 @@ Enter "quit" or "q" to """
         print("Top genres in the past month:")
         for genre in genres:
             print(str(i) + ". " + str(genre.genreName))
-            print("   Total plays:" + str(genre.listenCount) + "\n")
+            print("   Total plays: " + str(genre.listenCount) + "\n")
             i += 1
         self.console.input("Press enter to continue...")
 
 
     def recommend(self, command):
-        pass
+        if self.login_id == None:
+            self.console.print("Log in to see the recommended songs from similar users.") 
+            self.console.input("Press enter to continue...")
+        else:
+            songs = self.interface.recommendSongs(self.login_id)
+            self.console.print("Bulding a list of songs based on your most played songs...")
+            self.nice_print(songs, None, 10)
+
+    
+    def topartists(self, command):
+        if self.login_id == None:
+            self.console.print("Log in to see your top artists.") 
+            self.console.input("Press enter to continue...")
+        else:
+            artists = self.interface.top10ArtistForUser(self.login_id)
+            i = 1
+            print("Your top artists:")
+            for artist in artists:
+                print(str(i) + ".\t" + str(artist[0]))
+                i += 1
+            self.console.input("Press enter to continue...")
 
 
     def input_loop(self):
@@ -767,6 +792,8 @@ Enter "quit" or "q" to """
                     self.genre_rankings(command)
                 elif (command[0] in ["recommendations", "recs"]):
                     self.recommend(command)
+                elif (command[0] == "topartists"):
+                    self.topartists(command)
 
             if (command[0]) in ["quit", "q"]:
                 if self.screen in ["collections", "search", "statistics"]:
