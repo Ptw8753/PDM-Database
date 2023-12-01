@@ -460,6 +460,7 @@ class Interface:
         GROUP BY song.songid, song.title, artist.name, album.name, song.length, song.releasedate, song.songid, subquery.numRatings
         ORDER BY numRatings DESC
         LIMIT 50) as limitedResult on limitedResult.songid = songgenre.songid
+        order by playcount desc
         ''')
 
     def getTop50AmongFollowers(self, userid: int):
